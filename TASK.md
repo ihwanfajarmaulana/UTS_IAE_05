@@ -149,7 +149,6 @@ Mengelola order + integrasi antar service
 
 | Function            | Keterangan          |
 | ------------------- | ------------------- |
-| Validasi customer   | call API customer   |
 | Validasi restaurant | call API restaurant |
 | Hitung total        | function internal   |
 
@@ -264,8 +263,8 @@ POST http://localhost:3002/api/orders
 
 # 🧭 CHECKPOINT PROGRESS
 
-| Step                    | Status |
-| ----------------------- | ------ |
+| Step                    | Status  |
+| ----------------------- | ------  |
 | Semua service jalan     | ⬜      |
 | Semua DB connect        | ⬜      |
 | CRUD endpoint jalan     | ⬜      |
