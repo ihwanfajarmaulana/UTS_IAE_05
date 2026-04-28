@@ -15,6 +15,16 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || "restaurant_db",
 });
 
+pool.getConnection()
+  .then(conn => {
+    console.log("Database connected successfully");
+    conn.release();
+  })
+  .catch(err => {
+    console.error("Database connection failed:", err.message);
+    process.exit(1);
+  });
+  
 app.listen(PORT, () => {
   console.log(`Service running on port ${PORT}`);
 });
