@@ -4,6 +4,32 @@ const app = express();
 app.use(express.json());
 const axios = require("axios");
 
+const mysql = require("mysql2");
+
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "order"
+});
+
+db.connect((err) => {
+    if (err) {
+        console.error("DB connection failed:", err);
+    } else {
+        console.log("Connected to order_db");
+    }
+});
+
+app.get("/test-db", (req, res) => {
+    db.query("SELECT 1", (err, result) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        res.json({ message: "DB OK", result });
+    });
+});
+
 app.get("/", (req, res) => {
     res.send("Order service running");
 });
@@ -37,13 +63,24 @@ app.post("/api/orders", async (req, res) => {
             { amount: total }
         );
 
-        // 4. Response
-        res.json({
-            message: "Order success",
-            restaurant,
-            total,
-            payment: paymentRes.data,
-        });
+        // 4. SIMPAN KE DB 🔥
+        db.query(
+            "INSERT INTO orders (restaurant_id, total, status) VALUES (?, ?, ?)",
+            [restaurantId, total, "PAID"],
+            (err, result) => {
+                if (err) {
+                    return res.status(500).json(err);
+                }
+
+                res.json({
+                    message: "Order success",
+                    orderId: result.insertId,
+                    restaurant,
+                    total,
+                    payment: paymentRes.data,
+                });
+            }
+        );
 
     } catch (err) {
         res.status(500).json({
