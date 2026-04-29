@@ -6,6 +6,9 @@ const axios = require("axios");
 
 const mysql = require("mysql2/promise");
 
+const cors = require('cors');
+app.use(cors());
+
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
@@ -42,9 +45,36 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 3002;
 
+app.get('/api/orders', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT * FROM orders ORDER BY id DESC");
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Gagal mengambil data order" });
+    }
+});
+
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.query("SELECT * FROM orders WHERE id = ?", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Order tidak ditemukan" });
+        }
+
+        res.json(rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Gagal mengambil detail order" });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Order service running on ${PORT}`);
 });
+
 
 app.post("/api/orders", async (req, res) => {
     try {

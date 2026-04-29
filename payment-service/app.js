@@ -1,11 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js'); // Hanya butuh supabase, hapus mysql2
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
 
 app.use(express.json());
+
+const cors = require('cors');
+app.use(cors());
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -35,7 +38,6 @@ async function testDatabaseConnection() {
 
 testDatabaseConnection();
 
-// 1. Proses pembayaran (POST /api/payments/process)
 app.post('/api/payments/process', async (req, res) => {
     try {
         const { orderId, amount } = req.body;
@@ -67,7 +69,6 @@ app.post('/api/payments/process', async (req, res) => {
     }
 });
 
-// 2. Ambil semua transaksi (GET /api/payments)
 app.get('/api/payments', async (req, res) => {
     try {
         const { data, error } = await supabase.from('payments').select('*');
@@ -79,7 +80,6 @@ app.get('/api/payments', async (req, res) => {
     }
 });
 
-// 3. Detail transaksi (GET /api/payments/:id)
 app.get('/api/payments/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -102,7 +102,6 @@ app.get('/api/payments/:id', async (req, res) => {
     }
 });
 
-// 4. Transaksi berdasarkan order (GET /api/payments/order/:orderId)
 app.get('/api/payments/order/:orderId', async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -119,7 +118,6 @@ app.get('/api/payments/order/:orderId', async (req, res) => {
     }
 });
 
-// 5. Update status pembayaran (PUT /api/payments/:id/status)
 app.put('/api/payments/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -150,7 +148,6 @@ app.put('/api/payments/:id/status', async (req, res) => {
     }
 });
 
-// 6. Refund pembayaran (POST /api/payments/:id/refund)
 app.post('/api/payments/:id/refund', async (req, res) => {
     try {
         const { id } = req.params;

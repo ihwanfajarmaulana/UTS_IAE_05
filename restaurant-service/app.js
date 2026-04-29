@@ -5,6 +5,9 @@ const mysql = require("mysql2/promise");
 const app = express();
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors());
+
 const PORT = process.env.PORT || 3001;
 
 const pool = mysql.createPool({
@@ -109,10 +112,6 @@ app.get("/api/restaurants/:id/menus", async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
-
-// ===========================
-// MENUS
-// ===========================
 
 app.post("/api/menus", async (req, res) => {
   try {
