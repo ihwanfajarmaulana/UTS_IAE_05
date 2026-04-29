@@ -5,6 +5,9 @@ const mysql = require("mysql2");
 const app = express();
 app.use(express.json());
 
+const cors = require('cors');
+app.use(cors());
+
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,               
@@ -25,18 +28,10 @@ db.getConnection((err, connection) => {
   connection.release();
 });
 
-// ===========================
-// ROOT
-// ===========================
 app.get("/", (req, res) => {
   res.send("Delivery Service is running on port 3004");
 });
 
-// ===========================
-// 1. BUAT DELIVERY
-// POST /api/delivery
-// Body: { order_id, courier_id, address, recipient_name, recipient_phone }
-// ===========================
 app.post("/api/delivery", (req, res) => {
   const { order_id, courier_id, address, recipient_name, recipient_phone } = req.body;
 
@@ -68,10 +63,6 @@ app.post("/api/delivery", (req, res) => {
   });
 });
 
-// ===========================
-// 2. SEMUA DELIVERY
-// GET /api/delivery
-// ===========================
 app.get("/api/delivery", (req, res) => {
   const sql = "SELECT * FROM deliveries ORDER BY id DESC";
 
@@ -88,10 +79,6 @@ app.get("/api/delivery", (req, res) => {
   });
 });
 
-// ===========================
-// 3. DETAIL DELIVERY
-// GET /api/delivery/:id
-// ===========================
 app.get("/api/delivery/:id", (req, res) => {
   const { id } = req.params;
   const sql = "SELECT * FROM deliveries WHERE id = ?";
@@ -111,11 +98,6 @@ app.get("/api/delivery/:id", (req, res) => {
   });
 });
 
-// ===========================
-// 4. ASSIGN KURIR
-// POST /api/delivery/assign
-// Body: { delivery_id, courier_id }
-// ===========================
 app.post("/api/delivery/assign", (req, res) => {
   const { delivery_id, courier_id } = req.body;
 
@@ -123,7 +105,6 @@ app.post("/api/delivery/assign", (req, res) => {
     return res.status(400).json({ success: false, message: "delivery_id dan courier_id wajib diisi" });
   }
 
-  // Cek dulu delivery-nya ada ga
   db.query("SELECT * FROM deliveries WHERE id = ?", [delivery_id], (err, results) => {
     if (err) {
       return res.status(500).json({ success: false, message: "Gagal cek delivery", error: err.message });
@@ -146,12 +127,7 @@ app.post("/api/delivery/assign", (req, res) => {
   });
 });
 
-// ===========================
-// 5. UPDATE STATUS
-// PUT /api/delivery/status
-// Body: { delivery_id, status }
-// Status: pending | assigned | picked_up | on_the_way | delivered | failed
-// ===========================
+
 app.put("/api/delivery/status", (req, res) => {
   const { delivery_id, status } = req.body;
 
@@ -187,11 +163,7 @@ app.put("/api/delivery/status", (req, res) => {
   });
 });
 
-// ===========================
-// 6. UPDATE DETAIL DELIVERY
-// PUT /api/delivery/:id
-// Body: { address, recipient_name, recipient_phone }
-// ===========================
+
 app.put("/api/delivery/:id", (req, res) => {
   const { id } = req.params;
   const { address, recipient_name, recipient_phone } = req.body;
@@ -223,10 +195,6 @@ app.put("/api/delivery/:id", (req, res) => {
   });
 });
 
-// ===========================
-// 7. HAPUS DELIVERY
-// DELETE /api/delivery/:id
-// ===========================
 app.delete("/api/delivery/:id", (req, res) => {
   const { id } = req.params;
 
@@ -250,14 +218,9 @@ app.delete("/api/delivery/:id", (req, res) => {
   });
 });
 
-// ===========================
-// 8. TRACKING
-// GET /api/track/:id
-// ===========================
 app.get("/api/track/:id", (req, res) => {
   const { id } = req.params;
 
-  // Track berdasarkan delivery id (bisa dikembangin berdasarkan order_id juga)
   const sql = "SELECT id, order_id, courier_id, status, address, recipient_name, updated_at FROM deliveries WHERE id = ?";
   db.query(sql, [id], (err, results) => {
     if (err) {
@@ -288,14 +251,9 @@ app.get("/api/track/:id", (req, res) => {
   });
 });
 
-// ===========================
-// 9. INFO KURIR
-// GET /api/delivery/courier/:id
-// ===========================
 app.get("/api/delivery/courier/:id", (req, res) => {
   const { id } = req.params;
 
-  // Ambil semua delivery yang dikerjakan kurir ini
   const sql = "SELECT * FROM deliveries WHERE courier_id = ? ORDER BY id DESC";
   db.query(sql, [id], (err, results) => {
     if (err) {
@@ -314,10 +272,6 @@ app.get("/api/delivery/courier/:id", (req, res) => {
   });
 });
 
-// ===========================
-// 10. SELESAI (COMPLETE)
-// PUT /api/delivery/complete/:id
-// ===========================
 app.put("/api/delivery/complete/:id", (req, res) => {
   const { id } = req.params;
 
@@ -343,9 +297,6 @@ app.put("/api/delivery/complete/:id", (req, res) => {
   });
 });
 
-// ===========================
-// START SERVER
-// ===========================
 const PORT = process.env.PORT || 3004;
 app.listen(PORT, () => {
   console.log(`Delivery Service running on port ${PORT}`);
