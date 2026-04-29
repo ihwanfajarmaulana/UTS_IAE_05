@@ -46,7 +46,6 @@ app.post('/api/payments/process', async (req, res) => {
 
         const status = 'Success'; 
         
-        // Insert menggunakan Supabase
         const { data, error } = await supabase
             .from('payments')
             .insert([{ order_id: orderId, amount: amount, status: status }])
