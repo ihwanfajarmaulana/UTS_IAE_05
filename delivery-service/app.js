@@ -5,22 +5,24 @@ const mysql = require("mysql2");
 const app = express();
 app.use(express.json());
 
-// ===========================
-// KONEKSI DATABASE
-// ===========================
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "delivery_db",
+const db = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,               
+    user: process.env.DB_USERNAME,                   
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,               
+    waitForConnections: true,                        
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
   if (err) {
     console.error("Gagal koneksi ke database:", err.message);
     process.exit(1);
   }
-  console.log("Berhasil konek ke database MySQL!");
+  console.log("Berhasil konek ke database MySQL (Delivery DB)!");
+  connection.release();
 });
 
 // ===========================
@@ -44,7 +46,7 @@ app.post("/api/delivery", (req, res) => {
 
   const status = "pending";
   const sql = `INSERT INTO deliveries (order_id, courier_id, status, address, recipient_name, recipient_phone) 
-               VALUES (?, ?, ?, ?, ?, ?)`;
+                VALUES (?, ?, ?, ?, ?, ?)`;
 
   db.query(sql, [order_id, courier_id || null, status, address || null, recipient_name || null, recipient_phone || null], (err, result) => {
     if (err) {

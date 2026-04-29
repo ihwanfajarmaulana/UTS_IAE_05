@@ -4,30 +4,36 @@ const app = express();
 app.use(express.json());
 const axios = require("axios");
 
-const mysql = require("mysql2");
+const mysql = require("mysql2/promise");
 
-const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "order"
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error("DB connection failed:", err);
-    } else {
-        console.log("Connected to order_db");
-    }
-});
-
-app.get("/test-db", (req, res) => {
-    db.query("SELECT 1", (err, result) => {
-        if (err) {
-            return res.status(500).json(err);
-        }
-        res.json({ message: "DB OK", result });
+pool.getConnection()
+    .then(conn => {
+        console.log("Berhasil konek ke database MySQL (Order DB)!");
+        conn.release();
+    })
+    .catch(err => {
+        console.error("Gagal koneksi ke database:", err.message);
+        process.exit(1);
     });
+
+app.get("/test-db", async (req, res) => {
+    try {
+        const [result] = await pool.query("SELECT 1");
+        res.json({ message: "DB OK", result });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get("/", (req, res) => {
@@ -44,47 +50,49 @@ app.post("/api/orders", async (req, res) => {
     try {
         const { restaurantId, items } = req.body;
 
-        // 1. Validasi restaurant
         const restaurantRes = await axios.get(
             `${process.env.RESTAURANT_SERVICE_URL}/api/restaurants/${restaurantId}`
         );
-
         const restaurant = restaurantRes.data;
 
-        // 2. Hitung total harga
         let total = 0;
-        items.forEach((item) => {
-            total += item.price;
-        });
+        if (items && Array.isArray(items)) {
+            items.forEach((item) => {
+                total += item.price;
+            });
+        }
 
-        // 3. Proses payment
+        const [orderResult] = await pool.query(
+            "INSERT INTO orders (restaurant_id, total, status) VALUES (?, ?, ?)",
+            [restaurantId, total, "PENDING"]
+        );
+        const newOrderId = orderResult.insertId;
+
         const paymentRes = await axios.post(
             `${process.env.PAYMENT_SERVICE_URL}/api/payments/process`,
-            { amount: total }
-        );
-
-        // 4. SIMPAN KE DB 🔥
-        db.query(
-            "INSERT INTO orders (restaurant_id, total, status) VALUES (?, ?, ?)",
-            [restaurantId, total, "PAID"],
-            (err, result) => {
-                if (err) {
-                    return res.status(500).json(err);
-                }
-
-                res.json({
-                    message: "Order success",
-                    orderId: result.insertId,
-                    restaurant,
-                    total,
-                    payment: paymentRes.data,
-                });
+            { 
+                orderId: newOrderId,
+                amount: total 
             }
         );
 
+        await pool.query(
+            "UPDATE orders SET status = ? WHERE id = ?",
+            ["PAID", newOrderId]
+        );
+
+        res.status(201).json({
+            message: "Order success",
+            orderId: newOrderId,
+            restaurant,
+            total,
+            payment: paymentRes.data,
+        });
+
     } catch (err) {
+        const errorMessage = err.response?.data || err.message;
         res.status(500).json({
-            error: err.message,
+            error: errorMessage,
         });
     }
 });
