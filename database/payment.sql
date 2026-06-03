@@ -1,10 +1,10 @@
 CREATE DATABASE IF NOT EXISTS payment_db;
-
 USE payment_db;
 
 CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT,
-    amount INT,
-    status VARCHAR(50)
+    order_id VARCHAR(255) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Success',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-# ======================
+  # ======================
   # DATABASES
   # ======================
 
@@ -10,37 +10,69 @@ services:
     image: mysql:8
     container_name: restaurant-db
     environment:
-      MYSQL_ROOT_PASSWORD: rahasia123 # (Sesuaikan dengan .env Anda)
+      MYSQL_ROOT_PASSWORD: rahasia123
       MYSQL_DATABASE: restaurant_db
     ports:
       - "3307:3306"
     volumes:
       - restaurant-data:/var/lib/mysql
       - ./database/restaurant.sql:/docker-entrypoint-initdb.d/restaurant.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prahasia123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   order-db:
     image: mysql:8
     container_name: order-db
     environment:
-      MYSQL_ROOT_PASSWORD: rahasia123 # (Sesuaikan dengan .env Anda)
+      MYSQL_ROOT_PASSWORD: rahasia123
       MYSQL_DATABASE: order_db
     ports:
       - "3319:3306"
     volumes:
       - order-data:/var/lib/mysql
       - ./database/order.sql:/docker-entrypoint-initdb.d/order.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prahasia123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   delivery-db:
     image: mysql:8
     container_name: delivery-db
     environment:
-      MYSQL_ROOT_PASSWORD: rahasia123 # (Sesuaikan dengan .env Anda)
+      MYSQL_ROOT_PASSWORD: rahasia123
       MYSQL_DATABASE: delivery_db
     ports:
       - "3314:3306"
     volumes:
       - delivery-data:/var/lib/mysql
       - ./database/delivery.sql:/docker-entrypoint-initdb.d/delivery.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prahasia123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  payment-db:
+    image: mysql:8
+    container_name: payment-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rahasia123
+      MYSQL_DATABASE: payment_db
+    ports:
+      - "3320:3306"
+    volumes:
+      - payment-data:/var/lib/mysql
+      - ./database/payment.sql:/docker-entrypoint-initdb.d/payment.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prahasia123"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # ======================
   # SERVICES
@@ -51,7 +83,8 @@ services:
     ports:
       - "3315:3001"
     depends_on:
-      - restaurant-db
+      restaurant-db:
+        condition: service_healthy
     env_file:
       - ./restaurant-service/.env
     environment:
@@ -61,29 +94,33 @@ services:
     build: ./order-service
     ports:
       - "3316:3002"
-    depends_on:          
-      - order-db         
+    depends_on:
+      order-db:
+        condition: service_healthy
     env_file:
       - ./order-service/.env
-    environment:         
-      - DB_HOST=order-db 
+    environment:
+      - DB_HOST=order-db
 
   payment-service:
     build: ./payment-service
     ports:
       - "3317:3003"
+    depends_on:
+      payment-db:
+        condition: service_healthy
     env_file:
       - ./payment-service/.env
     environment:
-      - SUPABASE_URL=https://gibhtqbyofoejicljrhd.supabase.co
-      - SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpYmh0cWJ5b2ZvZWppY2xqcmhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjg4ODMsImV4cCI6MjA5Mjk0NDg4M30.Bt_iqIjdTcMiQa0oAP5UAcQdKm3ZKgMevOBEocp-jiU
+      - DB_HOST=payment-db
 
   delivery-service:
     build: ./delivery-service
     ports:
       - "3318:3004"
     depends_on:
-      - delivery-db
+      delivery-db:
+        condition: service_healthy
     env_file:
       - ./delivery-service/.env
     environment:
@@ -93,3 +130,4 @@ volumes:
   restaurant-data:
   order-data:
   delivery-data:
+  payment-data:
