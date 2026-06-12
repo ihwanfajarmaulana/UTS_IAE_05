@@ -1,1056 +1,1902 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FoodDeliver — Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <style>
-        * {
-            font-family: "Plus Jakarta Sans", sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        .toast {
-            animation: slideIn 0.3s ease;
-        }
+  <title>Food Delivery Microservices Dashboard</title>
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Inter, Arial, sans-serif;
+    }
 
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+    body {
+      min-height: 100vh;
+      color: #e5e7eb;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.28), transparent 30%),
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.22), transparent 30%),
+        linear-gradient(135deg, #020617 0%, #0f172a 55%, #020617 100%);
+    }
 
-        .spinner {
-            animation: spin 0.8s linear infinite;
-        }
+    .container {
+      width: min(1250px, 94%);
+      margin: 0 auto;
+      padding: 34px 0;
+    }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 30px;
+      padding: 36px;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+      margin-bottom: 24px;
+    }
 
-        .fade-in {
-            animation: fadeIn 0.25s ease;
-        }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -90px;
+      right: -80px;
+      width: 270px;
+      height: 270px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.4), rgba(52, 211, 153, 0.25));
+      filter: blur(4px);
+      opacity: 0.75;
+    }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
+    .badge {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.13);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 18px #22c55e;
+    }
+
+    h1 {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -1.7px;
+      margin-bottom: 16px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #60a5fa, #a78bfa, #34d399);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      position: relative;
+      z-index: 2;
+      max-width: 850px;
+      color: #cbd5e1;
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    .actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      color: #e5e7eb;
+      background: rgba(30, 41, 59, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 11px 15px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 800;
+      transition: 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(96, 165, 250, 0.55);
+      background: rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border: none;
+      box-shadow: 0 18px 35px rgba(37, 99, 235, 0.25);
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .service-card {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 24px;
+      padding: 20px;
+      backdrop-filter: blur(16px);
+      transition: 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      margin-bottom: 14px;
+    }
+
+    .service-card h3 {
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .service-card p {
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.55;
+      margin-bottom: 13px;
+    }
+
+    .endpoint {
+      font-size: 12px;
+      color: #bfdbfe;
+      background: rgba(2, 6, 23, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      padding: 9px;
+      border-radius: 12px;
+      word-break: break-all;
+      margin-bottom: 12px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+    }
+
+    .sidebar,
+    .content {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+    }
+
+    .sidebar {
+      padding: 18px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 14px;
+      font-size: 18px;
+    }
+
+    .tab {
+      width: 100%;
+      text-align: left;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      color: #e5e7eb;
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .tab:hover,
+    .tab.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.75), rgba(124, 58, 237, 0.65));
+      border-color: rgba(96, 165, 250, 0.5);
+    }
+
+    .content {
+      padding: 22px;
+      min-height: 560px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .section-title h2 {
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    .section-title p {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .panel {
+      background: rgba(2, 6, 23, 0.35);
+      border: 1px solid rgba(148, 163, 184, 0.13);
+      border-radius: 18px;
+      padding: 17px;
+      margin-bottom: 16px;
+    }
+
+    .panel h3 {
+      margin-bottom: 13px;
+      font-size: 17px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+    }
+
+    .form-full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      color: #cbd5e1;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(2, 6, 23, 0.72);
+      color: #e5e7eb;
+      padding: 12px 13px;
+      border-radius: 13px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(96, 165, 250, 0.65);
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.11);
+    }
+
+    .form-button {
+      display: flex;
+      align-items: end;
+    }
+
+    pre {
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: #dbeafe;
+      padding: 16px;
+      border-radius: 18px;
+      min-height: 190px;
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    details {
+      margin-top: 18px;
+    }
+
+    summary {
+      cursor: pointer;
+      color: #93c5fd;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .data-area {
+      margin-top: 18px;
+    }
+
+    .data-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .data-header h3 {
+      font-size: 18px;
+    }
+
+    .count-badge {
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.25);
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .data-card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+    }
+
+    .data-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .data-card h4 {
+      font-size: 17px;
+      margin-bottom: 4px;
+    }
+
+    .muted {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .id-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.22);
+      color: #86efac;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .status-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(96, 165, 250, 0.14);
+      border: 1px solid rgba(96, 165, 250, 0.22);
+      color: #bfdbfe;
+      white-space: nowrap;
+    }
+
+    .status-badge.success {
+      color: #86efac;
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.24);
+    }
+
+    .status-badge.warning {
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.13);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(30, 41, 59, 0.75);
+      color: #e5e7eb;
+      cursor: pointer;
+      display: inline-grid;
+      place-items: center;
+      transition: 0.18s ease;
+      font-size: 15px;
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(96, 165, 250, 0.45);
+      background: rgba(37, 99, 235, 0.32);
+    }
+
+    .icon-btn.edit {
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.22);
+      background: rgba(245, 158, 11, 0.11);
+    }
+
+    .icon-btn.edit:hover {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    .icon-btn.delete {
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.22);
+      background: rgba(239, 68, 68, 0.11);
+    }
+
+    .icon-btn.delete:hover {
+      background: rgba(239, 68, 68, 0.22);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .icon-btn.success {
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.22);
+      background: rgba(34, 197, 94, 0.11);
+    }
+
+    .icon-btn.success:hover {
+      background: rgba(34, 197, 94, 0.22);
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .menu-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .menu-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 11px;
+      border-radius: 13px;
+      background: rgba(2, 6, 23, 0.48);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .menu-name {
+      font-weight: 800;
+      color: #e5e7eb;
+    }
+
+    .price {
+      color: #86efac;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(2, 6, 23, 0.36);
+      border: 1px dashed rgba(148, 163, 184, 0.25);
+      color: #94a3b8;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      background: rgba(15, 23, 42, 0.86);
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #bfdbfe;
+      background: rgba(30, 41, 59, 0.7);
+      font-weight: 900;
+    }
+
+    td {
+      color: #e5e7eb;
+    }
+
+    tr:hover td {
+      background: rgba(30, 41, 59, 0.35);
+    }
+
+    .footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      padding: 24px 0 8px;
+    }
+
+    @media (max-width: 1050px) {
+      .service-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .service-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .menu-item {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
-    <!-- TOAST -->
-    <div id="toast-container" class="fixed top-4 right-4 z-[999] space-y-2 w-72"></div>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="badge">
+        <span class="dot"></span>
+        Website Dashboard + GraphQL API
+      </div>
 
-    <!-- LOADING OVERLAY -->
-    <div id="loading-overlay"
-        class="fixed inset-0 bg-white/70 backdrop-blur-sm z-[998] hidden flex items-center justify-center">
-        <div class="flex flex-col items-center gap-3">
-            <svg class="spinner w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            <p class="text-sm text-gray-500 font-medium">Memuat data...</p>
-        </div>
-    </div>
+      <h1>
+        Food Delivery System<br />
+        <span class="gradient">Microservices GraphQL</span>
+      </h1>
 
-    <!-- NAVBAR -->
-    <nav class="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-            <button onclick="showPage('dashboard')" class="text-xl font-bold text-orange-500 tracking-tight">
-                🍴 FoodDeliver
-            </button>
-            <div class="flex gap-1">
-                <button onclick="showPage('dashboard')" id="nav-dashboard"
-                    class="nav-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                    Restoran
-                </button>
-                <button onclick="showPage('orders')" id="nav-orders"
-                    class="nav-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                    Order
-                </button>
-                <button onclick="showPage('payments')" id="nav-payments"
-                    class="nav-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                    Pembayaran
-                </button>
-                <button onclick="showPage('deliveries')" id="nav-deliveries"
-                    class="nav-btn px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-orange-50 hover:text-orange-500 transition">
-                    Pengiriman
-                </button>
-            </div>
-        </div>
-    </nav>
+      <p class="subtitle">
+        Dashboard ini digunakan sebagai tampilan utama untuk demo sistem. Selain menyediakan endpoint GraphQL,
+        halaman ini juga dapat digunakan untuk melihat dan mengelola restaurant, order, payment, dan delivery secara langsung.
+      </p>
 
-    <div class="pt-16 max-w-6xl mx-auto px-4 py-6">
-        <!-- ================================ -->
-        <!-- PAGE: DASHBOARD                  -->
-        <!-- ================================ -->
-        <div id="page-dashboard" class="hidden fade-in">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Daftar Restoran</h2>
-                    <p class="text-sm text-gray-400 mt-0.5">
-                        Data dari Restaurant Service · port 3315
-                    </p>
-                </div>
-                <button onclick="showPage('add-restaurant')"
-                    class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm shadow-orange-200">
-                    + Tambah Restoran
-                </button>
-            </div>
-            <div id="restaurant-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="col-span-full text-center text-gray-400 text-sm py-12">
-                    Memuat restoran...
-                </div>
-            </div>
-        </div>
+      <div class="actions">
+        <a href="http://localhost:3315/graphql" target="_blank" class="btn btn-primary">Restaurant GraphQL</a>
+        <a href="http://localhost:3316/graphql" target="_blank" class="btn">Order GraphQL</a>
+        <a href="http://localhost:3317/graphql" target="_blank" class="btn">Payment GraphQL</a>
+        <a href="http://localhost:3318/graphql" target="_blank" class="btn">Delivery GraphQL</a>
+      </div>
+    </section>
 
-        <!-- ================================ -->
-        <!-- PAGE: TAMBAH RESTORAN            -->
-        <!-- ================================ -->
-        <div id="page-add-restaurant" class="hidden fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <button onclick="showPage('dashboard')" class="text-sm text-gray-400 hover:text-orange-500 transition">
-                    ← Kembali
-                </button>
-                <h2 class="text-2xl font-bold">Tambah Restoran</h2>
-            </div>
-            <div class="bg-white rounded-2xl border border-gray-200 p-6 max-w-lg shadow-sm">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Restoran <span
-                            class="text-red-400">*</span></label>
-                    <input id="new-restaurant-name" type="text" placeholder="Contoh: Warung Pak Budi"
-                        class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 transition" />
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button onclick="showPage('dashboard')"
-                        class="flex-1 border border-gray-200 text-gray-500 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button onclick="addRestaurant()"
-                        class="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2.5 rounded-xl transition shadow-sm shadow-orange-200">
-                        Simpan
-                    </button>
-                </div>
-            </div>
-        </div>
+    <section class="service-grid">
+      <div class="service-card">
+        <div class="icon">🍽️</div>
+        <h3>Restaurant Service</h3>
+        <p>Mengelola data restoran dan menu.</p>
+        <div class="endpoint">localhost:3315/graphql</div>
+        <button class="btn" onclick="openTab('restaurant')">Kelola Restaurant</button>
+      </div>
 
-        <!-- ================================ -->
-        <!-- PAGE: DETAIL RESTORAN            -->
-        <!-- ================================ -->
-        <div id="page-restaurant-detail" class="hidden fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <button onclick="showPage('dashboard')" class="text-sm text-gray-400 hover:text-orange-500 transition">
-                    ← Kembali
-                </button>
-                <h2 id="detail-restaurant-name" class="text-2xl font-bold">
-                    Detail Restoran
-                </h2>
-            </div>
-            <div id="restaurant-detail-card"
-                class="bg-white rounded-2xl border border-gray-200 p-5 mb-6 flex items-center justify-between shadow-sm">
-                <p class="text-sm text-gray-400">Memuat...</p>
-            </div>
+      <div class="service-card">
+        <div class="icon">🧾</div>
+        <h3>Order Service</h3>
+        <p>Mengelola data order dan status pesanan.</p>
+        <div class="endpoint">localhost:3316/graphql</div>
+        <button class="btn" onclick="openTab('order')">Kelola Order</button>
+      </div>
 
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold">Daftar Menu</h3>
-                <button onclick="showAddMenuForm()"
-                    class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm shadow-orange-200">
-                    + Tambah Menu
-                </button>
+      <div class="service-card">
+        <div class="icon">💳</div>
+        <h3>Payment Service</h3>
+        <p>Memproses pembayaran order.</p>
+        <div class="endpoint">localhost:3317/graphql</div>
+        <button class="btn" onclick="openTab('payment')">Kelola Payment</button>
+      </div>
+
+      <div class="service-card">
+        <div class="icon">🚚</div>
+        <h3>Delivery Service</h3>
+        <p>Mengelola pengiriman dan tracking.</p>
+        <div class="endpoint">localhost:3318/graphql</div>
+        <button class="btn" onclick="openTab('delivery')">Kelola Delivery</button>
+      </div>
+    </section>
+
+    <section class="main">
+      <aside class="sidebar">
+        <h3>Menu Dashboard</h3>
+        <button class="tab active" data-tab="restaurant" onclick="openTab('restaurant')">🍽️ Restaurant</button>
+        <button class="tab" data-tab="order" onclick="openTab('order')">🧾 Order</button>
+        <button class="tab" data-tab="payment" onclick="openTab('payment')">💳 Payment</button>
+        <button class="tab" data-tab="delivery" onclick="openTab('delivery')">🚚 Delivery</button>
+      </aside>
+
+      <main class="content">
+        <section id="restaurant" class="section active">
+          <div class="section-title">
+            <div>
+              <h2>Restaurant Management</h2>
+              <p>Lihat ID restaurant, nama restaurant, jumlah menu, dan detail menu.</p>
             </div>
+            <button class="btn btn-primary" onclick="getRestaurants()">Refresh Restaurant</button>
+          </div>
 
-            <!-- Form tambah menu (tersembunyi) -->
-            <div id="add-menu-form" class="hidden bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
-                <p class="text-sm font-semibold text-orange-700 mb-3">
-                    Tambah Menu Baru
-                </p>
-                <div class="flex gap-3">
-                    <input id="new-menu-name" type="text" placeholder="Nama menu"
-                        class="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-                    <input id="new-menu-price" type="number" placeholder="Harga (Rp)"
-                        class="w-36 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" />
-                    <button onclick="addMenu()"
-                        class="bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-orange-600 transition">
-                        Simpan
-                    </button>
-                    <button onclick="
-                document.getElementById('add-menu-form').classList.add('hidden')
-              " class="text-sm text-gray-400 hover:text-gray-600 px-2">
-                        ✕
-                    </button>
-                </div>
-            </div>
-
-            <div id="menu-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                <div class="col-span-full text-center text-gray-400 text-sm py-8">
-                    Memuat menu...
-                </div>
-            </div>
-            <button onclick="showPage('create-order')"
-                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-2xl transition shadow-sm shadow-orange-200">
-                🛒 Pesan Sekarang
-            </button>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: BUAT ORDER                 -->
-        <!-- ================================ -->
-        <div id="page-create-order" class="hidden fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <button onclick="showPage('restaurant-detail')"
-                    class="text-sm text-gray-400 hover:text-orange-500 transition">
-                    ← Kembali
-                </button>
-                <h2 class="text-2xl font-bold">Buat Order</h2>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
-                    <h3 class="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">
-                        Pilih Menu
-                    </h3>
-                    <div id="order-menu-list" class="space-y-3">
-                        <div class="text-sm text-gray-400 py-8 text-center">
-                            Memuat menu...
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-2xl border border-gray-200 p-5 h-fit shadow-sm">
-                    <h3 class="font-semibold text-gray-700 mb-4">Ringkasan Order</h3>
-                    <div id="order-summary" class="space-y-2 text-sm text-gray-500 min-h-[60px]">
-                        <p class="text-gray-400 text-xs">Belum ada item dipilih</p>
-                    </div>
-                    <div class="border-t border-gray-100 mt-4 pt-4 flex justify-between font-semibold">
-                        <span class="text-gray-700">Total</span>
-                        <span id="order-total" class="text-orange-500">Rp 0</span>
-                    </div>
-                    <button onclick="processOrder()"
-                        class="mt-5 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-2xl text-sm transition shadow-sm shadow-orange-200">
-                        ✅ Proses Order
-                    </button>
-                    <p class="text-xs text-gray-400 text-center mt-2">
-                        Validasi restoran → Payment otomatis
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: DAFTAR ORDER               -->
-        <!-- ================================ -->
-        <div id="page-orders" class="hidden fade-in">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-2xl font-bold">Daftar Order</h2>
-                    <p class="text-sm text-gray-400 mt-0.5">
-                        Data dari Order Service · port 3316
-                    </p>
-                </div>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-50 border-b border-gray-100">
-                        <tr>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                ID
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Restaurant ID
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Total
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Status
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="order-table-body">
-                        <tr>
-                            <td colspan="5" class="text-center text-gray-400 py-12 text-sm">
-                                Memuat data order...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: DETAIL ORDER               -->
-        <!-- ================================ -->
-        <div id="page-order-detail" class="hidden fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <button onclick="showPage('orders')" class="text-sm text-gray-400 hover:text-orange-500 transition">
-                    ← Kembali
-                </button>
-                <h2 id="order-detail-title" class="text-2xl font-bold">
-                    Detail Order
-                </h2>
-            </div>
-            <div id="order-detail-content" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div class="col-span-full text-center text-gray-400 py-12 text-sm">
-                    Memuat detail order...
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: RIWAYAT PEMBAYARAN         -->
-        <!-- ================================ -->
-        <div id="page-payments" class="hidden fade-in">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold">Riwayat Pembayaran</h2>
-                <p class="text-sm text-gray-400 mt-0.5">
-                    Data dari Payment Service · port 3317
-                </p>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-50 border-b border-gray-100">
-                        <tr>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                ID
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Order ID
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Jumlah
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Status
-                            </th>
-                            <th class="text-left px-5 py-3 text-gray-500 font-semibold">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="payment-table-body">
-                        <tr>
-                            <td colspan="5" class="text-center text-gray-400 py-12 text-sm">
-                                Memuat data pembayaran...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: MANAJEMEN DELIVERY         -->
-        <!-- ================================ -->
-        <div id="page-deliveries" class="hidden fade-in">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold">Manajemen Pengiriman</h2>
-                <p class="text-sm text-gray-400 mt-0.5">
-                    Data dari Delivery Service · port 3318
-                </p>
-            </div>
-            <div id="delivery-list" class="space-y-4">
-                <div class="text-center text-gray-400 py-12 text-sm">
-                    Memuat data pengiriman...
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================ -->
-        <!-- PAGE: TRACKING                   -->
-        <!-- ================================ -->
-        <div id="page-tracking" class="hidden fade-in">
-            <div class="flex items-center gap-3 mb-6">
-                <button onclick="showPage('deliveries')" class="text-sm text-gray-400 hover:text-orange-500 transition">
-                    ← Kembali
-                </button>
-                <h2 id="tracking-title" class="text-2xl font-bold">
-                    Tracking Pengiriman
-                </h2>
-            </div>
-            <div id="tracking-content" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <div class="col-span-full text-center text-gray-400 py-12 text-sm">
-                    Memuat data tracking...
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const API = {
-            restaurant: "http://localhost:3315",
-            order: "http://localhost:3316",
-            payment: "http://localhost:3317",
-            delivery: "http://localhost:3318",
-        };
-
-        let currentRestaurantId = null;
-        let currentMenus = [];
-        let selectedItems = {};
-
-        function showLoading(show) {
-            document
-                .getElementById("loading-overlay")
-                .classList.toggle("hidden", !show);
-        }
-
-        function toast(msg, type = "success") {
-            const colors = {
-                success: "bg-green-500",
-                error: "bg-red-500",
-                info: "bg-blue-500",
-            };
-            const el = document.createElement("div");
-            el.className = `toast text-white text-sm px-4 py-3 rounded-xl shadow-lg ${colors[type] || colors.success}`;
-            el.textContent = msg;
-            document.getElementById("toast-container").appendChild(el);
-            setTimeout(() => el.remove(), 3500);
-        }
-
-        async function apiFetch(url, options = {}) {
-            try {
-                const res = await fetch(url, {
-                    headers: { "Content-Type": "application/json" },
-                    ...options,
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Request gagal");
-                return data;
-            } catch (err) {
-                throw err;
-            }
-        }
-
-        function formatRp(amount) {
-            return "Rp " + Number(amount).toLocaleString("id-ID");
-        }
-
-        function statusBadge(status) {
-            const map = {
-                Success: "bg-green-100 text-green-700",
-                success: "bg-green-100 text-green-700",
-                Pending: "bg-yellow-100 text-yellow-700",
-                pending: "bg-yellow-100 text-yellow-700",
-                Delivered: "bg-blue-100 text-blue-700",
-                delivered: "bg-blue-100 text-blue-700",
-                "On Delivery": "bg-indigo-100 text-indigo-700",
-                Refunded: "bg-red-100 text-red-600",
-                Failed: "bg-red-100 text-red-600",
-            };
-            const cls = map[status] || "bg-gray-100 text-gray-600";
-            return `<span class="${cls} px-2.5 py-1 rounded-full text-xs font-medium">${status || "-"}</span>`;
-        }
-        const pages = [
-            "dashboard",
-            "add-restaurant",
-            "restaurant-detail",
-            "create-order",
-            "orders",
-            "order-detail",
-            "payments",
-            "deliveries",
-            "tracking",
-        ];
-        const navMap = {
-            dashboard: "nav-dashboard",
-            orders: "nav-orders",
-            payments: "nav-payments",
-            deliveries: "nav-deliveries",
-        };
-
-        function showPage(name) {
-            pages.forEach((p) => {
-                const el = document.getElementById("page-" + p);
-                if (el) el.classList.add("hidden");
-            });
-            document
-                .querySelectorAll(".nav-btn")
-                .forEach((b) =>
-                    b.classList.remove("bg-orange-50", "text-orange-500"),
-                );
-            const target = document.getElementById("page-" + name);
-            if (target) {
-                target.classList.remove("hidden");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            }
-            if (navMap[name]) {
-                const nb = document.getElementById(navMap[name]);
-                if (nb) nb.classList.add("bg-orange-50", "text-orange-500");
-            }
-            // Load data per page
-            if (name === "dashboard") loadRestaurants();
-            if (name === "orders") loadOrders();
-            if (name === "payments") loadPayments();
-            if (name === "deliveries") loadDeliveries();
-        }
-        async function loadRestaurants() {
-            showLoading(true);
-            try {
-                const data = await apiFetch(`${API.restaurant}/api/restaurants`);
-                const list = Array.isArray(data) ? data : data.data || [];
-                const container = document.getElementById("restaurant-list");
-                if (!list.length) {
-                    container.innerHTML =
-                        '<div class="col-span-full text-center text-gray-400 py-12 text-sm">Belum ada restoran. Tambahkan sekarang!</div>';
-                    return;
-                }
-                const emojis = ["🍜", "🍕", "🍣", "🍔", "🍱", "🌮", "🥘", "🍗"];
-                container.innerHTML = list
-                    .map(
-                        (r, i) => `
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
-             onclick="openRestaurant(${r.id}, '${(r.name || "").replace(/'/g, "\\'")}')">
-          <div class="text-4xl mb-3">${emojis[i % emojis.length]}</div>
-          <h3 class="text-base font-bold text-gray-800 mb-1">${r.name || "-"}</h3>
-          <p class="text-xs text-gray-400 mb-3">ID: ${r.id}</p>
-          <div class="flex gap-2 justify-between items-center">
-            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Aktif</span>
-            <div class="flex gap-2">
-              <button onclick="event.stopPropagation(); deleteRestaurant(${r.id})"
-                class="text-xs text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 px-2 py-1 rounded-lg transition">Hapus</button>
+          <div class="panel">
+            <h3>Tambah Restaurant</h3>
+            <div class="form-grid">
+              <div>
+                <label>Nama Restaurant</label>
+                <input id="restaurantName" placeholder="Contoh: Ayam Geprek Fajar" />
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="addRestaurant()">Tambah Restaurant</button>
+              </div>
             </div>
           </div>
-        </div>
-      `,
-                    )
-                    .join("");
-            } catch (e) {
-                toast("Gagal memuat restoran: " + e.message, "error");
-                document.getElementById("restaurant-list").innerHTML =
-                    '<div class="col-span-full text-center text-red-400 py-12 text-sm">Gagal terhubung ke Restaurant Service (port 3315)</div>';
-            } finally {
-                showLoading(false);
-            }
-        }
 
-        async function addRestaurant() {
-            const name = document
-                .getElementById("new-restaurant-name")
-                .value.trim();
-            if (!name) {
-                toast("Nama restoran wajib diisi", "error");
-                return;
-            }
-            showLoading(true);
-            try {
-                await apiFetch(`${API.restaurant}/api/restaurants`, {
-                    method: "POST",
-                    body: JSON.stringify({ name }),
-                });
-                toast("Restoran berhasil ditambahkan!");
-                document.getElementById("new-restaurant-name").value = "";
-                showPage("dashboard");
-            } catch (e) {
-                toast("Gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function deleteRestaurant(id) {
-            if (!confirm("Hapus restoran ini?")) return;
-            showLoading(true);
-            try {
-                await apiFetch(`${API.restaurant}/api/restaurants/${id}`, {
-                    method: "DELETE",
-                });
-                toast("Restoran dihapus");
-                loadRestaurants();
-            } catch (e) {
-                toast("Gagal hapus: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function openRestaurant(id, name) {
-            currentRestaurantId = id;
-            selectedItems = {};
-            document.getElementById("detail-restaurant-name").textContent = name;
-            document.getElementById("restaurant-detail-card").innerHTML = `
-      <div class="flex items-center gap-4">
-        <div class="text-5xl">🍽️</div>
-        <div>
-          <h3 class="text-lg font-bold text-gray-800">${name}</h3>
-          <p class="text-sm text-gray-400">ID Restoran: ${id}</p>
-        </div>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="deleteRestaurant(${id})"
-          class="border border-red-200 text-red-500 text-sm px-3 py-2 rounded-xl hover:bg-red-50 transition">🗑️ Hapus</button>
-      </div>
-    `;
-            showPage("restaurant-detail");
-            await loadMenus(id);
-        }
-
-        async function loadMenus(restaurantId) {
-            document.getElementById("menu-list").innerHTML =
-                '<div class="col-span-full text-center text-gray-400 py-8 text-sm">Memuat menu...</div>';
-            try {
-                const data = await apiFetch(
-                    `${API.restaurant}/api/restaurants/${restaurantId}/menus`,
-                );
-                currentMenus = Array.isArray(data)
-                    ? data
-                    : data.data || data.menus || [];
-                renderMenuList();
-            } catch (e) {
-                document.getElementById("menu-list").innerHTML =
-                    '<div class="col-span-full text-center text-red-400 py-8 text-sm">Gagal memuat menu</div>';
-            }
-        }
-
-        function renderMenuList() {
-            const container = document.getElementById("menu-list");
-            if (!currentMenus.length) {
-                container.innerHTML =
-                    '<div class="col-span-full text-center text-gray-400 py-8 text-sm">Belum ada menu. Tambahkan dulu!</div>';
-                return;
-            }
-            container.innerHTML = currentMenus
-                .map(
-                    (m) => `
-      <div class="bg-white rounded-xl border border-gray-200 p-4 flex justify-between items-center hover:shadow-sm transition">
-        <div>
-          <p class="font-semibold text-gray-800">${m.name || "-"}</p>
-          <p class="text-orange-500 text-sm font-bold mt-0.5">${formatRp(m.price)}</p>
-        </div>
-        <button onclick="deleteMenu(${m.id})" class="text-gray-300 hover:text-red-400 transition text-lg">🗑️</button>
-      </div>
-    `,
-                )
-                .join("");
-        }
-
-        function showAddMenuForm() {
-            document.getElementById("add-menu-form").classList.remove("hidden");
-        }
-
-        async function addMenu() {
-            const name = document.getElementById("new-menu-name").value.trim();
-            const price = parseInt(document.getElementById("new-menu-price").value);
-            if (!name || !price) {
-                toast("Nama dan harga wajib diisi", "error");
-                return;
-            }
-            showLoading(true);
-            try {
-                await apiFetch(`${API.restaurant}/api/menus`, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        restaurant_id: currentRestaurantId,
-                        name,
-                        price,
-                    }),
-                });
-                toast("Menu berhasil ditambahkan!");
-                document.getElementById("new-menu-name").value = "";
-                document.getElementById("new-menu-price").value = "";
-                document.getElementById("add-menu-form").classList.add("hidden");
-                await loadMenus(currentRestaurantId);
-            } catch (e) {
-                toast("Gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function deleteMenu(id) {
-            if (!confirm("Hapus menu ini?")) return;
-            showLoading(true);
-            try {
-                await apiFetch(`${API.restaurant}/api/menus/${id}`, {
-                    method: "DELETE",
-                });
-                toast("Menu dihapus");
-                await loadMenus(currentRestaurantId);
-            } catch (e) {
-                toast("Gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-        function openCreateOrder() {
-            selectedItems = {};
-            showPage("create-order");
-            renderOrderMenuList();
-        }
-
-        function renderOrderMenuList() {
-            const container = document.getElementById("order-menu-list");
-            if (!currentMenus.length) {
-                container.innerHTML =
-                    '<div class="text-sm text-gray-400 py-8 text-center">Tidak ada menu tersedia</div>';
-                return;
-            }
-            container.innerHTML = currentMenus
-                .map(
-                    (m) => `
-      <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between hover:shadow-sm transition">
-        <div class="flex items-center gap-3">
-          <input type="checkbox" id="menu-${m.id}" onchange="toggleItem(${m.id}, ${m.price}, '${(m.name || "").replace(/'/g, "\\'")}', this.checked)"
-            class="w-4 h-4 accent-orange-500 cursor-pointer"/>
-          <label for="menu-${m.id}" class="cursor-pointer">
-            <p class="text-sm font-semibold text-gray-800">${m.name}</p>
-            <p class="text-orange-500 text-xs font-bold">${formatRp(m.price)}</p>
-          </label>
-        </div>
-        <input type="number" value="1" min="1" id="qty-${m.id}"
-          onchange="updateQty(${m.id}, this.value)"
-          class="w-14 border border-gray-200 rounded-lg text-center text-sm py-1 focus:outline-none focus:ring-2 focus:ring-orange-400"/>
-      </div>
-    `,
-                )
-                .join("");
-            updateOrderSummary();
-        }
-
-        function toggleItem(id, price, name, checked) {
-            const qty = parseInt(document.getElementById("qty-" + id).value) || 1;
-            if (checked) selectedItems[id] = { price, name, qty };
-            else delete selectedItems[id];
-            updateOrderSummary();
-        }
-
-        function updateQty(id, val) {
-            if (selectedItems[id]) {
-                selectedItems[id].qty = parseInt(val) || 1;
-                updateOrderSummary();
-            }
-        }
-
-        function updateOrderSummary() {
-            const keys = Object.keys(selectedItems);
-            const summary = document.getElementById("order-summary");
-            const totalEl = document.getElementById("order-total");
-            if (!keys.length) {
-                summary.innerHTML =
-                    '<p class="text-gray-400 text-xs">Belum ada item dipilih</p>';
-                totalEl.textContent = "Rp 0";
-                return;
-            }
-            let total = 0;
-            summary.innerHTML = keys
-                .map((id) => {
-                    const item = selectedItems[id];
-                    const sub = item.price * item.qty;
-                    total += sub;
-                    return `<div class="flex justify-between text-sm">
-        <span class="text-gray-600">${item.name} x${item.qty}</span>
-        <span class="font-medium">${formatRp(sub)}</span>
-      </div>`;
-                })
-                .join("");
-            totalEl.textContent = formatRp(total);
-        }
-
-        async function processOrder() {
-            const items = Object.values(selectedItems);
-            if (!items.length) {
-                toast("Pilih minimal 1 menu", "error");
-                return;
-            }
-            const payload = {
-                restaurantId: currentRestaurantId,
-                items: items.map((i) => ({ price: i.price, qty: i.qty })),
-            };
-            showLoading(true);
-            try {
-                const res = await apiFetch(`${API.order}/api/orders`, {
-                    method: "POST",
-                    body: JSON.stringify(payload),
-                });
-                toast(`Order berhasil! Total: ${formatRp(res.total)}`);
-                selectedItems = {};
-                showPage("orders");
-            } catch (e) {
-                toast("Order gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function loadOrders() {
-            showLoading(true);
-            try {
-                const data = await apiFetch(`${API.order}/api/orders`);
-                const list = Array.isArray(data) ? data : data.data || [];
-                const tbody = document.getElementById("order-table-body");
-                if (!list.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="5" class="text-center text-gray-400 py-12 text-sm">Belum ada order</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = list
-                    .map(
-                        (o) => `
-        <tr class="hover:bg-gray-50 transition border-t border-gray-50">
-          <td class="px-5 py-3 font-medium">#${o.id}</td>
-          <td class="px-5 py-3 text-gray-600">${o.restaurant_id || o.restaurantId || "-"}</td>
-          <td class="px-5 py-3 text-orange-500 font-semibold">${formatRp(o.total)}</td>
-          <td class="px-5 py-3">${statusBadge(o.status)}</td>
-          <td class="px-5 py-3">
-            <button onclick="openOrderDetail(${o.id})" class="text-orange-500 hover:text-orange-700 text-xs font-semibold hover:underline">Lihat Detail</button>
-          </td>
-        </tr>
-      `,
-      
-                    )
-                    .join("");
-            } catch (e) {
-                toast("Gagal memuat order: " + e.message, "error");
-                document.getElementById("order-table-body").innerHTML =
-                    '<tr><td colspan="5" class="text-center text-red-400 py-12 text-sm">Gagal terhubung ke Order Service (port 3316)</td></tr>';
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function openOrderDetail(id) {
-            document.getElementById("order-detail-title").textContent =
-                `Detail Order #${id}`;
-            document.getElementById("order-detail-content").innerHTML =
-                '<div class="col-span-full text-center text-gray-400 py-12 text-sm">Memuat...</div>';
-            showPage("order-detail");
-            showLoading(true);
-            try {
-                const order = await apiFetch(`${API.order}/api/orders/${id}`);
-                const o = order.data || order;
-
-                let paymentHtml =
-                    '<p class="text-xs text-gray-400">Tidak ada data pembayaran</p>';
-                try {
-                    const pay = await apiFetch(
-                        `${API.payment}/api/payments/order/${id}`,
-                    );
-                    const p = pay.data || pay;
-                    paymentHtml = `
-          <div class="space-y-2 text-sm text-gray-600">
-            <div class="flex justify-between"><span>Payment ID</span><span class="font-semibold">#${p.id}</span></div>
-            <div class="flex justify-between"><span>Jumlah</span><span class="font-semibold text-orange-500">${formatRp(p.amount)}</span></div>
-            <div class="flex justify-between"><span>Status</span>${statusBadge(p.status)}</div>
+          <div class="panel">
+            <h3>Tambah Menu</h3>
+            <div class="form-grid">
+              <div>
+                <label>Restaurant ID</label>
+                <input id="menuRestaurantId" type="number" placeholder="Lihat ID di card restaurant" />
+              </div>
+              <div>
+                <label>Nama Menu</label>
+                <input id="menuName" placeholder="Contoh: Nasi Ayam Geprek" />
+              </div>
+              <div>
+                <label>Harga</label>
+                <input id="menuPrice" type="number" placeholder="Contoh: 15000" />
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="addMenu()">Tambah Menu</button>
+              </div>
+            </div>
           </div>
-          <button onclick="refundPayment(${p.id})" class="mt-4 w-full border border-red-200 text-red-500 text-sm py-2 rounded-xl hover:bg-red-50 transition">Refund</button>
+
+          <div class="data-area">
+            <div class="data-header">
+              <h3>Daftar Restaurant & Menu</h3>
+              <span class="count-badge" id="restaurantCount">0 Restaurant</span>
+            </div>
+            <div id="restaurantCards" class="card-grid">
+              <div class="empty-state">Klik Refresh Restaurant untuk menampilkan data.</div>
+            </div>
+          </div>
+
+          <details>
+            <summary>Lihat raw JSON response</summary>
+            <pre id="restaurantResult">Belum ada response.</pre>
+          </details>
+        </section>
+
+        <section id="order" class="section">
+          <div class="section-title">
+            <div>
+              <h2>Order Management</h2>
+              <p>Lihat ID order, restaurant ID, total, dan status order.</p>
+            </div>
+            <button class="btn btn-primary" onclick="getOrders()">Refresh Order</button>
+          </div>
+
+          <div class="panel">
+            <h3>Buat Order</h3>
+            <div class="form-grid">
+              <div>
+                <label>Restaurant ID</label>
+                <input id="orderRestaurantId" type="number" placeholder="Contoh: 1" />
+              </div>
+              <div>
+                <label>Total</label>
+                <input id="orderTotal" type="number" placeholder="Contoh: 25000" />
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="orderStatus">
+                  <option value="PENDING">PENDING</option>
+                  <option value="PAID">PAID</option>
+                  <option value="PROCESSING">PROCESSING</option>
+                  <option value="DONE">DONE</option>
+                </select>
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="createOrder()">Buat Order</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Update Status Order</h3>
+            <div class="form-grid">
+              <div>
+                <label>Order ID</label>
+                <input id="updateOrderId" type="number" placeholder="Lihat ID di tabel order" />
+              </div>
+              <div>
+                <label>Status Baru</label>
+                <select id="updateOrderStatus">
+                  <option value="PENDING">PENDING</option>
+                  <option value="PAID">PAID</option>
+                  <option value="PROCESSING">PROCESSING</option>
+                  <option value="DONE">DONE</option>
+                  <option value="CANCELLED">CANCELLED</option>
+                </select>
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="updateOrderStatus()">Update Status</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-area">
+            <div class="data-header">
+              <h3>Daftar Order</h3>
+              <span class="count-badge" id="orderCount">0 Order</span>
+            </div>
+            <div id="orderTable"></div>
+          </div>
+
+          <details>
+            <summary>Lihat raw JSON response</summary>
+            <pre id="orderResult">Belum ada response.</pre>
+          </details>
+        </section>
+
+        <section id="payment" class="section">
+          <div class="section-title">
+            <div>
+              <h2>Payment Management</h2>
+              <p>Lihat ID payment, order ID, amount, dan status payment.</p>
+            </div>
+            <button class="btn btn-primary" onclick="getPayments()">Refresh Payment</button>
+          </div>
+
+          <div class="panel">
+            <h3>Process Payment</h3>
+            <div class="form-grid">
+              <div>
+                <label>Order ID</label>
+                <input id="paymentOrderId" placeholder="Lihat ID di tabel order" />
+              </div>
+              <div>
+                <label>Amount</label>
+                <input id="paymentAmount" type="number" placeholder="Contoh: 25000" />
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="processPayment()">Process Payment</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-area">
+            <div class="data-header">
+              <h3>Daftar Payment</h3>
+              <span class="count-badge" id="paymentCount">0 Payment</span>
+            </div>
+            <div id="paymentTable"></div>
+          </div>
+
+          <details>
+            <summary>Lihat raw JSON response</summary>
+            <pre id="paymentResult">Belum ada response.</pre>
+          </details>
+        </section>
+
+        <section id="delivery" class="section">
+          <div class="section-title">
+            <div>
+              <h2>Delivery Management</h2>
+              <p>Lihat ID delivery, order ID, courier ID, penerima, alamat, dan status delivery.</p>
+            </div>
+            <button class="btn btn-primary" onclick="getDeliveries()">Refresh Delivery</button>
+          </div>
+
+          <div class="panel">
+            <h3>Buat Delivery</h3>
+            <div class="form-grid">
+              <div>
+                <label>Order ID</label>
+                <input id="deliveryOrderId" type="number" placeholder="Lihat ID di tabel order" />
+              </div>
+              <div>
+                <label>Courier ID</label>
+                <input id="deliveryCourierId" type="number" placeholder="Contoh: 10" />
+              </div>
+              <div class="form-full">
+                <label>Alamat</label>
+                <input id="deliveryAddress" placeholder="Contoh: Jl. Telekomunikasi No. 1" />
+              </div>
+              <div>
+                <label>Nama Penerima</label>
+                <input id="recipientName" placeholder="Contoh: Ihwan" />
+              </div>
+              <div>
+                <label>No HP Penerima</label>
+                <input id="recipientPhone" placeholder="Contoh: 081234567890" />
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="createDelivery()">Buat Delivery</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Update Status Delivery</h3>
+            <div class="form-grid">
+              <div>
+                <label>Delivery ID</label>
+                <input id="deliveryUpdateId" type="number" placeholder="Lihat ID di card delivery" />
+              </div>
+              <div>
+                <label>Status</label>
+                <select id="deliveryStatus">
+                  <option value="pending">pending</option>
+                  <option value="assigned">assigned</option>
+                  <option value="picked_up">picked_up</option>
+                  <option value="on_the_way">on_the_way</option>
+                  <option value="delivered">delivered</option>
+                  <option value="failed">failed</option>
+                </select>
+              </div>
+              <div class="form-button">
+                <button class="btn btn-primary" onclick="updateDeliveryStatus()">Update Delivery</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-area">
+            <div class="data-header">
+              <h3>Daftar Delivery</h3>
+              <span class="count-badge" id="deliveryCount">0 Delivery</span>
+            </div>
+            <div id="deliveryCards" class="card-grid"></div>
+          </div>
+
+          <details>
+            <summary>Lihat raw JSON response</summary>
+            <pre id="deliveryResult">Belum ada response.</pre>
+          </details>
+        </section>
+      </main>
+    </section>
+
+    <footer class="footer">
+      UTS IAE 05 - Food Delivery Microservices | Express.js, Docker, MySQL, GraphQL
+    </footer>
+  </div>
+
+  <script>
+    const endpoints = {
+      restaurant: "http://localhost:3315/graphql",
+      order: "http://localhost:3316/graphql",
+      payment: "http://localhost:3317/graphql",
+      delivery: "http://localhost:3318/graphql",
+    };
+
+    let restaurantCache = [];
+    let orderCache = [];
+    let paymentCache = [];
+    let deliveryCache = [];
+
+    function escapeString(value) {
+      return String(value || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    }
+
+    function formatDate(value) {
+      if (!value) return "-";
+      const numberValue = Number(value);
+      if (!Number.isNaN(numberValue) && String(value).length >= 10) {
+        return new Date(numberValue).toLocaleString("id-ID");
+      }
+      return String(value);
+    }
+
+    function formatCurrency(value) {
+      const numberValue = Number(value || 0);
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0,
+      }).format(numberValue);
+    }
+
+    function statusClass(status) {
+      const value = String(status || "").toLowerCase();
+      if (["paid", "success", "delivered", "done", "completed", "refunded"].includes(value)) return "success";
+      if (["pending", "process", "processing", "on_the_way", "assigned", "picked_up"].includes(value)) return "warning";
+      return "";
+    }
+
+    function openTab(tabName) {
+      document.querySelectorAll(".section").forEach((section) => {
+        section.classList.remove("active");
+      });
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.remove("active");
+      });
+
+      document.getElementById(tabName).classList.add("active");
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
+
+      if (tabName === "restaurant") getRestaurants();
+      if (tabName === "order") getOrders();
+      if (tabName === "payment") getPayments();
+      if (tabName === "delivery") getDeliveries();
+    }
+
+    async function gql(service, query) {
+      const response = await fetch(endpoints[service], {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      return response.json();
+    }
+
+    function show(target, data) {
+      document.getElementById(target).textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function run(service, query, target) {
+      try {
+        const data = await gql(service, query);
+        show(target, data);
+        return data;
+      } catch (error) {
+        const errorData = {
+          error: true,
+          message: error.message,
+        };
+
+        show(target, errorData);
+        return errorData;
+      }
+    }
+
+    function renderRestaurants(restaurants = []) {
+      const container = document.getElementById("restaurantCards");
+      const count = document.getElementById("restaurantCount");
+
+      restaurantCache = restaurants;
+      count.textContent = `${restaurants.length} Restaurant`;
+
+      if (!restaurants.length) {
+        container.innerHTML = `<div class="empty-state">Belum ada data restaurant.</div>`;
+        return;
+      }
+
+      container.innerHTML = restaurants.map((restaurant) => {
+        const menus = restaurant.menus || [];
+
+        const menuHtml = menus.length
+          ? menus.map((menu) => `
+              <div class="menu-item">
+                <div>
+                  <div class="menu-name">${menu.name}</div>
+                  <div class="muted">Menu ID: ${menu.id}</div>
+                </div>
+
+                <div class="price">${formatCurrency(menu.price)}</div>
+
+                <div class="action-row">
+                  <button class="icon-btn edit" title="Edit Menu" onclick="updateMenu(${menu.id})">
+                    ✏️
+                  </button>
+
+                  <button class="icon-btn delete" title="Hapus Menu" onclick="deleteMenu(${menu.id})">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            `).join("")
+          : `<div class="empty-state">Belum ada menu untuk restaurant ini.</div>`;
+
+        return `
+          <div class="data-card">
+            <div class="data-card-top">
+              <div>
+                <h4>${restaurant.name}</h4>
+                <div class="muted">Created: ${formatDate(restaurant.created_at)}</div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+                <span class="id-badge">Restaurant ID: ${restaurant.id}</span>
+
+                <button class="icon-btn edit" title="Edit Restaurant" onclick="updateRestaurant(${restaurant.id})">
+                  ✏️
+                </button>
+
+                <button class="icon-btn delete" title="Hapus Restaurant" onclick="deleteRestaurant(${restaurant.id})">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="count-badge">${menus.length} Menu</div>
+
+            <div class="menu-list">
+              ${menuHtml}
+            </div>
+          </div>
         `;
-                } catch (_) { }
+      }).join("");
+    }
 
-                document.getElementById("order-detail-content").innerHTML = `
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h3 class="font-semibold text-gray-700 mb-4">📦 Info Order</h3>
-          <div class="space-y-2 text-sm text-gray-600">
-            <div class="flex justify-between"><span>Order ID</span><span class="font-semibold">#${o.id}</span></div>
-            <div class="flex justify-between"><span>Restaurant ID</span><span class="font-semibold">${o.restaurant_id || o.restaurantId || "-"}</span></div>
-            <div class="flex justify-between"><span>Total</span><span class="font-semibold text-orange-500">${formatRp(o.total)}</span></div>
-            <div class="flex justify-between"><span>Status</span>${statusBadge(o.status)}</div>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h3 class="font-semibold text-gray-700 mb-4">💳 Info Pembayaran</h3>
-          ${paymentHtml}
-        </div>
-      `;
-            } catch (e) {
-                document.getElementById("order-detail-content").innerHTML =
-                    `<div class="col-span-full text-center text-red-400 py-12 text-sm">Gagal memuat: ${e.message}</div>`;
-            } finally {
-                showLoading(false);
-            }
-        }
+    function renderOrders(orders = []) {
+      const container = document.getElementById("orderTable");
+      const count = document.getElementById("orderCount");
 
-        async function loadPayments() {
-            showLoading(true);
-            try {
-                const data = await apiFetch(`${API.payment}/api/payments`);
-                const list = Array.isArray(data) ? data : data.data || [];
-                const tbody = document.getElementById("payment-table-body");
-                if (!list.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="5" class="text-center text-gray-400 py-12 text-sm">Belum ada transaksi</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = list
-                    .map(
-                        (p) => `
-        <tr class="hover:bg-gray-50 transition border-t border-gray-50">
-          <td class="px-5 py-3 font-medium">#${p.id}</td>
-          <td class="px-5 py-3 text-gray-600">#${p.order_id || p.orderId || "-"}</td>
-          <td class="px-5 py-3 text-orange-500 font-semibold">${formatRp(p.amount)}</td>
-          <td class="px-5 py-3">${statusBadge(p.status)}</td>
-          <td class="px-5 py-3">
-            <button onclick="refundPayment(${p.id})" class="text-red-400 hover:text-red-600 text-xs font-semibold hover:underline">Refund</button>
-          </td>
-        </tr>
-      `,
-                    )
-                    .join("");
-            } catch (e) {
-                toast("Gagal memuat pembayaran: " + e.message, "error");
-                document.getElementById("payment-table-body").innerHTML =
-                    '<tr><td colspan="5" class="text-center text-red-400 py-12 text-sm">Gagal terhubung ke Payment Service (port 3317)</td></tr>';
-            } finally {
-                showLoading(false);
-            }
-        }
+      orderCache = orders;
+      count.textContent = `${orders.length} Order`;
 
-        async function refundPayment(id) {
-            if (!confirm(`Refund payment #${id}?`)) return;
-            showLoading(true);
-            try {
-                await apiFetch(`${API.payment}/api/payments/${id}/refund`, {
-                    method: "POST",
-                });
-                toast("Refund berhasil!");
-                loadPayments();
-            } catch (e) {
-                toast("Refund gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
+      if (!orders.length) {
+        container.innerHTML = `<div class="empty-state">Belum ada data order.</div>`;
+        return;
+      }
 
-        async function loadDeliveries() {
-            showLoading(true);
-            try {
-                const data = await apiFetch(`${API.delivery}/api/delivery`);
-                const list = Array.isArray(data) ? data : data.data || [];
-                const container = document.getElementById("delivery-list");
-                if (!list.length) {
-                    container.innerHTML =
-                        '<div class="text-center text-gray-400 py-12 text-sm">Belum ada pengiriman</div>';
-                    return;
-                }
-                container.innerHTML = list
-                    .map(
-                        (d) => `
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition">
-          <div>
-            <p class="font-bold text-gray-800">#DEL-${d.id}</p>
-            <p class="text-sm text-gray-500 mt-0.5">Order #${d.order_id || d.orderId || "-"}</p>
-          </div>
-          <div class="flex items-center gap-3 flex-wrap">
-            ${statusBadge(d.status)}
-            <button onclick="openTracking(${d.id})"
-              class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-              📍 Tracking
-            </button>
-            <button onclick="completeDelivery(${d.id})"
-              class="border border-green-300 text-green-600 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-green-50 transition">
-              ✅ Selesai
-            </button>
-            <button onclick="deleteDelivery(${d.id})"
-              class="border border-red-200 text-red-400 text-xs px-3 py-1.5 rounded-lg hover:bg-red-50 transition">
-              🗑️
-            </button>
-          </div>
-        </div>
-      `,
-                    )
-                    .join("");
-            } catch (e) {
-                toast("Gagal memuat delivery: " + e.message, "error");
-                document.getElementById("delivery-list").innerHTML =
-                    '<div class="text-center text-red-400 py-12 text-sm">Gagal terhubung ke Delivery Service (port 3318)</div>';
-            } finally {
-                showLoading(false);
-            }
-        }
+      container.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Restaurant ID</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orders.map((order) => `
+                <tr>
+                  <td><strong>#${order.id}</strong></td>
+                  <td>${order.restaurant_id}</td>
+                  <td>${formatCurrency(order.total)}</td>
+                  <td><span class="status-badge ${statusClass(order.status)}">${order.status}</span></td>
+                  <td>${formatDate(order.created_at)}</td>
+                  <td>${formatDate(order.updated_at)}</td>
+                  <td>
+                    <div class="action-row">
+                      <button class="icon-btn edit" title="Edit Status Order" onclick="quickUpdateOrderStatus(${order.id})">
+                        ✏️
+                      </button>
 
-        async function completeDelivery(id) {
-            if (!confirm("Tandai pengiriman ini selesai?")) return;
-            showLoading(true);
-            try {
-                await apiFetch(`${API.delivery}/api/delivery/complete/${id}`, {
-                    method: "PUT",
-                });
-                toast("Pengiriman selesai!");
-                loadDeliveries();
-            } catch (e) {
-                toast("Gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function deleteDelivery(id) {
-            if (!confirm("Hapus data delivery ini?")) return;
-            showLoading(true);
-            try {
-                await apiFetch(`${API.delivery}/api/delivery/${id}`, {
-                    method: "DELETE",
-                });
-                toast("Delivery dihapus");
-                loadDeliveries();
-            } catch (e) {
-                toast("Gagal: " + e.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        async function openTracking(id) {
-            document.getElementById("tracking-title").textContent =
-                `Tracking #DEL-${id}`;
-            document.getElementById("tracking-content").innerHTML =
-                '<div class="col-span-full text-center text-gray-400 py-12 text-sm">Memuat...</div>';
-            showPage("tracking");
-            showLoading(true);
-            try {
-                const data = await apiFetch(`${API.delivery}/api/track/${id}`);
-                const d = data.data || data;
-                document.getElementById("tracking-content").innerHTML = `
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h3 class="font-semibold text-gray-700 mb-5">Status Pengiriman</h3>
-          <div class="space-y-3 text-sm text-gray-600">
-            <div class="flex justify-between"><span>Delivery ID</span><span class="font-semibold">#${d.id}</span></div>
-            <div class="flex justify-between"><span>Order ID</span><span class="font-semibold">#${d.order_id || d.orderId || "-"}</span></div>
-            <div class="flex justify-between"><span>Status</span>${statusBadge(d.status)}</div>
-          </div>
-          <button onclick="completeDelivery(${d.id})" class="mt-5 w-full bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-3 rounded-2xl transition">
-            ✅ Tandai Selesai
-          </button>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h3 class="font-semibold text-gray-700 mb-4">Info Lengkap</h3>
-          <pre class="text-xs text-gray-500 bg-gray-50 rounded-xl p-4 overflow-auto">${JSON.stringify(d, null, 2)}</pre>
+                      <button class="icon-btn delete" title="Hapus Order" onclick="deleteOrder(${order.id})">
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
         </div>
       `;
-            } catch (e) {
-                document.getElementById("tracking-content").innerHTML =
-                    `<div class="col-span-full text-center text-red-400 py-12 text-sm">Gagal memuat tracking: ${e.message}</div>`;
-            } finally {
-                showLoading(false);
+    }
+
+    function renderPayments(payments = []) {
+      const container = document.getElementById("paymentTable");
+      const count = document.getElementById("paymentCount");
+
+      paymentCache = payments;
+      count.textContent = `${payments.length} Payment`;
+
+      if (!payments.length) {
+        container.innerHTML = `<div class="empty-state">Belum ada data payment.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Payment ID</th>
+                <th>Order ID</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${payments.map((payment) => `
+                <tr>
+                  <td><strong>#${payment.id}</strong></td>
+                  <td>${payment.order_id}</td>
+                  <td>${formatCurrency(payment.amount)}</td>
+                  <td><span class="status-badge ${statusClass(payment.status)}">${payment.status}</span></td>
+                  <td>${formatDate(payment.created_at)}</td>
+                  <td>
+                    <div class="action-row">
+                      <button class="icon-btn edit" title="Edit Status Payment" onclick="updatePaymentStatus(${payment.id})">
+                        ✏️
+                      </button>
+
+                      <button class="icon-btn delete" title="Refund Payment" onclick="refundPayment(${payment.id})">
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderDeliveries(deliveries = []) {
+      const container = document.getElementById("deliveryCards");
+      const count = document.getElementById("deliveryCount");
+
+      deliveryCache = deliveries;
+      count.textContent = `${deliveries.length} Delivery`;
+
+      if (!deliveries.length) {
+        container.innerHTML = `<div class="empty-state">Belum ada data delivery.</div>`;
+        return;
+      }
+
+      container.innerHTML = deliveries.map((delivery) => `
+        <div class="data-card">
+          <div class="data-card-top">
+            <div>
+              <h4>Delivery untuk Order #${delivery.order_id}</h4>
+              <div class="muted">Updated: ${formatDate(delivery.updated_at)}</div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              <span class="id-badge">Delivery ID: ${delivery.id}</span>
+
+              <button class="icon-btn edit" title="Assign Courier" onclick="assignCourier(${delivery.id})">
+                🚚
+              </button>
+
+              <button class="icon-btn edit" title="Edit Status Delivery" onclick="quickUpdateDeliveryStatus(${delivery.id})">
+                ✏️
+              </button>
+
+              <button class="icon-btn success" title="Selesaikan Delivery" onclick="completeDelivery(${delivery.id})">
+                ✅
+              </button>
+
+              <button class="icon-btn delete" title="Hapus Delivery" onclick="deleteDelivery(${delivery.id})">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+            <span class="status-badge ${statusClass(delivery.status)}">${delivery.status}</span>
+            <span class="count-badge">Courier ID: ${delivery.courier_id || "-"}</span>
+          </div>
+
+          <div class="menu-list">
+            <div class="menu-item">
+              <div>
+                <div class="menu-name">${delivery.recipient_name || "-"}</div>
+                <div class="muted">Penerima</div>
+              </div>
+              <div class="price">${delivery.recipient_phone || "-"}</div>
+              <div></div>
+            </div>
+
+            <div class="menu-item">
+              <div>
+                <div class="menu-name">${delivery.address || "-"}</div>
+                <div class="muted">Alamat Pengiriman</div>
+              </div>
+              <div></div>
+              <div></div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function getRestaurants() {
+      const query = `
+        query {
+          restaurants {
+            id
+            name
+            created_at
+            updated_at
+            menus {
+              id
+              restaurant_id
+              name
+              price
             }
+          }
         }
+      `;
 
-        const _origShowPage = showPage;
-        window.showPage = function (name) {
-            _origShowPage(name);
-            if (name === "create-order") renderOrderMenuList();
-        };
+      const response = await run("restaurant", query, "restaurantResult");
+      renderRestaurants(response?.data?.restaurants || []);
+    }
 
-        showPage("dashboard");
-    </script>
+    async function addRestaurant() {
+      const name = escapeString(
+        document.getElementById("restaurantName").value || "Ayam Geprek Fajar"
+      );
+
+      const query = `
+        mutation {
+          addRestaurant(name: "${name}") {
+            message
+            data {
+              id
+              name
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function updateRestaurant(id) {
+      const restaurant = restaurantCache.find((item) => Number(item.id) === Number(id));
+
+      if (!restaurant) {
+        alert("Data restaurant tidak ditemukan. Coba klik Refresh Restaurant dulu.");
+        return;
+      }
+
+      const newName = prompt("Masukkan nama restaurant baru:", restaurant.name);
+
+      if (!newName || !newName.trim()) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          updateRestaurant(id: ${id}, name: "${escapeString(newName)}") {
+            message
+            data {
+              id
+              name
+              created_at
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function deleteRestaurant(id) {
+      const restaurant = restaurantCache.find((item) => Number(item.id) === Number(id));
+      const name = restaurant ? restaurant.name : `ID ${id}`;
+
+      const confirmDelete = confirm(
+        `Yakin ingin menghapus restaurant "${name}"? Menu di restaurant ini juga bisa ikut terhapus.`
+      );
+
+      if (!confirmDelete) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          deleteRestaurant(id: ${id}) {
+            message
+            success
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function addMenu() {
+      const restaurantId = Number(document.getElementById("menuRestaurantId").value || 1);
+      const name = escapeString(
+        document.getElementById("menuName").value || "Nasi Ayam Geprek"
+      );
+      const price = Number(document.getElementById("menuPrice").value || 15000);
+
+      const query = `
+        mutation {
+          addMenu(restaurantId: ${restaurantId}, name: "${name}", price: ${price}) {
+            message
+            data {
+              id
+              restaurant_id
+              name
+              price
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function updateMenu(id) {
+      const allMenus = restaurantCache.flatMap((restaurant) => restaurant.menus || []);
+      const menu = allMenus.find((item) => Number(item.id) === Number(id));
+
+      if (!menu) {
+        alert("Data menu tidak ditemukan. Coba klik Refresh Restaurant dulu.");
+        return;
+      }
+
+      const newName = prompt("Masukkan nama menu baru:", menu.name);
+
+      if (!newName || !newName.trim()) {
+        return;
+      }
+
+      const newPrice = prompt("Masukkan harga menu baru:", menu.price);
+
+      if (!newPrice || Number(newPrice) <= 0) {
+        alert("Harga tidak valid.");
+        return;
+      }
+
+      const query = `
+        mutation {
+          updateMenu(id: ${id}, name: "${escapeString(newName)}", price: ${Number(newPrice)}) {
+            message
+            data {
+              id
+              restaurant_id
+              name
+              price
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function deleteMenu(id) {
+      const allMenus = restaurantCache.flatMap((restaurant) => restaurant.menus || []);
+      const menu = allMenus.find((item) => Number(item.id) === Number(id));
+      const name = menu ? menu.name : `ID ${id}`;
+
+      const confirmDelete = confirm(`Yakin ingin menghapus menu "${name}"?`);
+
+      if (!confirmDelete) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          deleteMenu(id: ${id}) {
+            message
+            success
+          }
+        }
+      `;
+
+      await run("restaurant", query, "restaurantResult");
+      await getRestaurants();
+    }
+
+    async function getOrders() {
+      const query = `
+        query {
+          orders {
+            id
+            restaurant_id
+            total
+            status
+            created_at
+            updated_at
+          }
+        }
+      `;
+
+      const response = await run("order", query, "orderResult");
+      renderOrders(response?.data?.orders || []);
+    }
+
+    async function createOrder() {
+      const restaurantId = Number(document.getElementById("orderRestaurantId").value || 1);
+      const total = Number(document.getElementById("orderTotal").value || 25000);
+      const status = escapeString(document.getElementById("orderStatus").value || "PENDING");
+
+      const query = `
+        mutation {
+          createOrder(restaurantId: ${restaurantId}, total: ${total}, status: "${status}") {
+            message
+            data {
+              id
+              restaurant_id
+              total
+              status
+              created_at
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("order", query, "orderResult");
+      await getOrders();
+    }
+
+    async function updateOrderStatus() {
+      const id = Number(document.getElementById("updateOrderId").value || 1);
+      const status = escapeString(document.getElementById("updateOrderStatus").value || "PAID");
+
+      const query = `
+        mutation {
+          updateOrderStatus(id: ${id}, status: "${status}") {
+            message
+            data {
+              id
+              restaurant_id
+              total
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("order", query, "orderResult");
+      await getOrders();
+    }
+
+    async function quickUpdateOrderStatus(id) {
+      const order = orderCache.find((item) => Number(item.id) === Number(id));
+
+      if (!order) {
+        alert("Data order tidak ditemukan. Coba klik Refresh Order dulu.");
+        return;
+      }
+
+      const newStatus = prompt("Masukkan status order baru:", order.status);
+
+      if (!newStatus || !newStatus.trim()) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          updateOrderStatus(id: ${id}, status: "${escapeString(newStatus)}") {
+            message
+            data {
+              id
+              restaurant_id
+              total
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("order", query, "orderResult");
+      await getOrders();
+    }
+
+    async function deleteOrder(id) {
+      const confirmDelete = confirm(`Yakin ingin menghapus order ID ${id}?`);
+
+      if (!confirmDelete) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          deleteOrder(id: ${id}) {
+            message
+            success
+          }
+        }
+      `;
+
+      await run("order", query, "orderResult");
+      await getOrders();
+    }
+
+    async function getPayments() {
+      const query = `
+        query {
+          payments {
+            id
+            order_id
+            amount
+            status
+            created_at
+          }
+        }
+      `;
+
+      const response = await run("payment", query, "paymentResult");
+      renderPayments(response?.data?.payments || []);
+    }
+
+    async function processPayment() {
+      const orderId = escapeString(document.getElementById("paymentOrderId").value || "1");
+      const amount = Number(document.getElementById("paymentAmount").value || 25000);
+
+      const query = `
+        mutation {
+          processPayment(orderId: "${orderId}", amount: ${amount}) {
+            message
+            data {
+              id
+              order_id
+              amount
+              status
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("payment", query, "paymentResult");
+      await getPayments();
+    }
+
+    async function updatePaymentStatus(id) {
+      const payment = paymentCache.find((item) => Number(item.id) === Number(id));
+
+      if (!payment) {
+        alert("Data payment tidak ditemukan. Coba klik Refresh Payment dulu.");
+        return;
+      }
+
+      const newStatus = prompt("Masukkan status payment baru:", payment.status);
+
+      if (!newStatus || !newStatus.trim()) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          updatePaymentStatus(id: ${id}, status: "${escapeString(newStatus)}") {
+            message
+            data {
+              id
+              order_id
+              amount
+              status
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("payment", query, "paymentResult");
+      await getPayments();
+    }
+
+    async function refundPayment(id) {
+      const confirmRefund = confirm(`Yakin ingin refund payment ID ${id}?`);
+
+      if (!confirmRefund) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          refundPayment(id: ${id}) {
+            message
+            data {
+              id
+              order_id
+              amount
+              status
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("payment", query, "paymentResult");
+      await getPayments();
+    }
+
+    async function getDeliveries() {
+      const query = `
+        query {
+          deliveries {
+            id
+            order_id
+            courier_id
+            status
+            address
+            recipient_name
+            recipient_phone
+            created_at
+            updated_at
+          }
+        }
+      `;
+
+      const response = await run("delivery", query, "deliveryResult");
+      renderDeliveries(response?.data?.deliveries || []);
+    }
+
+    async function createDelivery() {
+      const orderId = Number(document.getElementById("deliveryOrderId").value || 1);
+      const courierId = Number(document.getElementById("deliveryCourierId").value || 10);
+      const address = escapeString(
+        document.getElementById("deliveryAddress").value || "Jl. Telekomunikasi No. 1"
+      );
+      const recipientName = escapeString(
+        document.getElementById("recipientName").value || "Ihwan"
+      );
+      const recipientPhone = escapeString(
+        document.getElementById("recipientPhone").value || "081234567890"
+      );
+
+      const query = `
+        mutation {
+          createDelivery(
+            orderId: ${orderId}
+            courierId: ${courierId}
+            address: "${address}"
+            recipientName: "${recipientName}"
+            recipientPhone: "${recipientPhone}"
+          ) {
+            message
+            data {
+              id
+              order_id
+              courier_id
+              status
+              address
+              recipient_name
+              recipient_phone
+              created_at
+            }
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    async function updateDeliveryStatus() {
+      const deliveryId = Number(document.getElementById("deliveryUpdateId").value || 1);
+      const status = escapeString(document.getElementById("deliveryStatus").value || "on_the_way");
+
+      const query = `
+        mutation {
+          updateDeliveryStatus(deliveryId: ${deliveryId}, status: "${status}") {
+            message
+            data {
+              id
+              order_id
+              courier_id
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    async function quickUpdateDeliveryStatus(deliveryId) {
+      const delivery = deliveryCache.find((item) => Number(item.id) === Number(deliveryId));
+
+      if (!delivery) {
+        alert("Data delivery tidak ditemukan. Coba klik Refresh Delivery dulu.");
+        return;
+      }
+
+      const newStatus = prompt("Masukkan status delivery baru:", delivery.status);
+
+      if (!newStatus || !newStatus.trim()) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          updateDeliveryStatus(deliveryId: ${deliveryId}, status: "${escapeString(newStatus)}") {
+            message
+            data {
+              id
+              order_id
+              courier_id
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    async function assignCourier(deliveryId) {
+      const delivery = deliveryCache.find((item) => Number(item.id) === Number(deliveryId));
+
+      if (!delivery) {
+        alert("Data delivery tidak ditemukan. Coba klik Refresh Delivery dulu.");
+        return;
+      }
+
+      const courierId = prompt("Masukkan courier ID:", delivery.courier_id || "12");
+
+      if (!courierId || Number(courierId) <= 0) {
+        alert("Courier ID tidak valid.");
+        return;
+      }
+
+      const query = `
+        mutation {
+          assignCourier(deliveryId: ${deliveryId}, courierId: ${Number(courierId)}) {
+            message
+            data {
+              id
+              order_id
+              courier_id
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    async function completeDelivery(id) {
+      const confirmComplete = confirm(`Tandai delivery ID ${id} sebagai delivered?`);
+
+      if (!confirmComplete) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          completeDelivery(id: ${id}) {
+            message
+            data {
+              id
+              order_id
+              courier_id
+              status
+              updated_at
+            }
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    async function deleteDelivery(id) {
+      const confirmDelete = confirm(`Yakin ingin menghapus delivery ID ${id}?`);
+
+      if (!confirmDelete) {
+        return;
+      }
+
+      const query = `
+        mutation {
+          deleteDelivery(id: ${id}) {
+            message
+            success
+          }
+        }
+      `;
+
+      await run("delivery", query, "deliveryResult");
+      await getDeliveries();
+    }
+
+    getRestaurants();
+  </script>
 </body>
-
 </html>

@@ -1,164 +1,137 @@
 require("dotenv").config();
+
 const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const mysql = require("mysql2/promise");
 
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@apollo/server/express4");
+
+const restaurantTypeDefs = require("./graphql/typeDefs/restaurantTypeDefs");
+const restaurantResolvers = require("./graphql/resolvers/restaurantResolvers");
+
 const app = express();
-app.use(express.json());
-
-const cors = require('cors');
-app.use(cors());
-
 const PORT = process.env.PORT || 3001;
 
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "views")));
+
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: process.env.DB_HOST || "restaurant-db",
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USERNAME || process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "rahasia123",
+  database: process.env.DB_DATABASE || process.env.DB_NAME || "restaurant_db",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-pool.getConnection()
-  .then(conn => {
-    console.log("Berhasil konek ke database MySQL (Restaurant DB)!");
-    conn.release();
-  })
-  .catch(err => {
-    console.error("Database connection failed:", err.message);
-    process.exit(1);
-  });
+/* =========================
+   WEBSITE ROUTES
+========================= */
 
-app.listen(PORT, () => {
-  console.log(`Service running on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "index.html"));
 });
+
+app.get("/dashboard", (req, res) => {
+  res.sendFile(path.join(__dirname, "views", "index.html"));
+});
+
+/* =========================
+   REST API UNTUK INTEGRASI SERVICE LAIN
+   Order service biasanya masih butuh endpoint ini
+========================= */
 
 app.get("/api/restaurants", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM restaurants");
+    const [rows] = await pool.query(
+      "SELECT * FROM restaurants ORDER BY id DESC"
+    );
+
     res.json(rows);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).json({
+      message: "Gagal mengambil data restoran",
+      error: error.message,
+    });
   }
 });
 
 app.get("/api/restaurants/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await pool.query("SELECT * FROM restaurants WHERE id = ?", [id]);
+
+    const [rows] = await pool.query(
+      "SELECT * FROM restaurants WHERE id = ?",
+      [id]
+    );
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Restoran tidak ditemukan" });
+      return res.status(404).json({
+        message: "Restoran tidak ditemukan",
+      });
     }
+
     res.json(rows[0]);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-});
-
-app.post("/api/restaurants", async (req, res) => {
-  try {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ message: "Nama restoran wajib diisi" });
-
-    const [result] = await pool.query("INSERT INTO restaurants (name) VALUES (?)", [name]);
-    const [newData] = await pool.query("SELECT * FROM restaurants WHERE id = ?", [result.insertId]);
-
-    res.status(201).json(newData[0]);
-  } catch (error) {
-    res.status(500).json({ message: "Gagal menambah restoran", error: error.message });
-  }
-});
-
-app.put("/api/restaurants/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-    
-    const [existing] = await pool.query("SELECT * FROM restaurants WHERE id = ?", [id]);
-    if (existing.length === 0) return res.status(404).json({ message: "Restoran tidak ditemukan" });
-
-    await pool.query("UPDATE restaurants SET name = ? WHERE id = ?", [name, id]);
-    const [updated] = await pool.query("SELECT * FROM restaurants WHERE id = ?", [id]);
-
-    res.json(updated[0]);
-  } catch (error) {
-    res.status(500).json({ message: "Gagal update restoran", error: error.message });
-  }
-});
-
-app.delete("/api/restaurants/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [existing] = await pool.query("SELECT * FROM restaurants WHERE id = ?", [id]);
-    
-    if (existing.length === 0) return res.status(404).json({ message: "Restoran tidak ditemukan" });
-
-    await pool.query("DELETE FROM restaurants WHERE id = ?", [id]);
-    res.json({ message: "Restoran berhasil dihapus", data: existing[0] });
-  } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus restoran", error: error.message });
+    res.status(500).json({
+      message: "Gagal mengambil detail restoran",
+      error: error.message,
+    });
   }
 });
 
 app.get("/api/restaurants/:id/menus", async (req, res) => {
   try {
     const { id } = req.params;
-    const [menus] = await pool.query("SELECT * FROM menus WHERE restaurant_id = ?", [id]);
-    res.json(menus);
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
-});
 
-app.post("/api/menus", async (req, res) => {
-  try {
-    const { restaurant_id, name, price } = req.body;
-    if (!restaurant_id || !name || !price) {
-      return res.status(400).json({ message: "Semua field (restaurant_id, name, price) wajib diisi" });
-    }
-
-    const [result] = await pool.query(
-      "INSERT INTO menus (restaurant_id, name, price) VALUES (?, ?, ?)",
-      [restaurant_id, name, price]
+    const [rows] = await pool.query(
+      "SELECT * FROM menus WHERE restaurant_id = ? ORDER BY id DESC",
+      [id]
     );
-    const [newMenu] = await pool.query("SELECT * FROM menus WHERE id = ?", [result.insertId]);
 
-    res.status(201).json(newMenu[0]);
+    res.json(rows);
   } catch (error) {
-    res.status(500).json({ message: "Gagal menambah menu", error: error.message });
+    res.status(500).json({
+      message: "Gagal mengambil menu restoran",
+      error: error.message,
+    });
   }
 });
 
-app.put("/api/menus/:id", async (req, res) => {
+/* =========================
+   GRAPHQL SERVER
+========================= */
+
+async function startServer() {
   try {
-    const { id } = req.params;
-    const { name, price } = req.body;
+    const conn = await pool.getConnection();
+    console.log("Berhasil konek ke database MySQL (Restaurant DB)!");
+    conn.release();
 
-    const [existing] = await pool.query("SELECT * FROM menus WHERE id = ?", [id]);
-    if (existing.length === 0) return res.status(404).json({ message: "Menu tidak ditemukan" });
+    const server = new ApolloServer({
+      typeDefs: restaurantTypeDefs,
+      resolvers: restaurantResolvers,
+      introspection: true,
+    });
 
-    await pool.query("UPDATE menus SET name = ?, price = ? WHERE id = ?", [name, price, id]);
-    const [updated] = await pool.query("SELECT * FROM menus WHERE id = ?", [id]);
+    await server.start();
 
-    res.json(updated[0]);
+    app.use("/graphql", expressMiddleware(server));
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Restaurant Service berjalan di http://localhost:${PORT}`);
+      console.log(`Website Dashboard: http://localhost:${PORT}`);
+      console.log(`GraphQL endpoint: http://localhost:${PORT}/graphql`);
+    });
   } catch (error) {
-    res.status(500).json({ message: "Gagal update menu", error: error.message });
+    console.error("Gagal menjalankan Restaurant Service:", error.message);
+    process.exit(1);
   }
-});
+}
 
-app.delete("/api/menus/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [existing] = await pool.query("SELECT * FROM menus WHERE id = ?", [id]);
-    
-    if (existing.length === 0) return res.status(404).json({ message: "Menu tidak ditemukan" });
-
-    await pool.query("DELETE FROM menus WHERE id = ?", [id]);
-    res.json({ message: "Menu berhasil dihapus", data: existing[0] });
-  } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus menu", error: error.message });
-  }
-});
+startServer();
