@@ -1,7 +1,9 @@
 const { gql } = require('graphql-tag');
 
 const restaurantTypeDefs = gql`
-    type Restaurant {
+    extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+
+    type Restaurant @key(fields: "id") {
         id: ID!
         name: String!
         created_at: String
@@ -30,30 +32,19 @@ const restaurantTypeDefs = gql`
     }
 
     type Query {
-        # Ambil semua restoran
         restaurants: [Restaurant!]!
-        # Ambil restoran berdasarkan ID
         restaurant(id: ID!): Restaurant
-        # Ambil semua menu
         menus: [Menu!]!
-        # Ambil menu berdasarkan ID
         menu(id: ID!): Menu
-        # Ambil menu berdasarkan restaurant_id
         menusByRestaurant(restaurantId: ID!): [Menu!]!
     }
 
     type Mutation {
-        # Tambah restoran baru
         addRestaurant(name: String!): RestaurantResult!
-        # Update restoran
         updateRestaurant(id: ID!, name: String!): RestaurantResult!
-        # Hapus restoran
         deleteRestaurant(id: ID!): RestaurantResult!
-        # Tambah menu baru
         addMenu(restaurantId: ID!, name: String!, price: Int!): MenuResult!
-        # Update menu
         updateMenu(id: ID!, name: String, price: Int): MenuResult!
-        # Hapus menu
         deleteMenu(id: ID!): MenuResult!
     }
 `;

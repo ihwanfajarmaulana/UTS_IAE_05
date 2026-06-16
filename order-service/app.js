@@ -1,9 +1,9 @@
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
+const { buildSubgraphSchema } = require("@apollo/subgraph");
 
 const orderTypeDefs = require("./graphql/typeDefs/orderTypeDefs");
 const orderResolvers = require("./graphql/resolvers/orderResolvers");
@@ -16,8 +16,7 @@ app.use(express.json());
 
 async function startServer() {
   const server = new ApolloServer({
-    typeDefs: orderTypeDefs,
-    resolvers: orderResolvers,
+    schema: buildSubgraphSchema({ typeDefs: orderTypeDefs, resolvers: orderResolvers }),
     introspection: true,
   });
 

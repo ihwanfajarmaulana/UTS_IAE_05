@@ -1,7 +1,9 @@
 const { gql } = require('graphql-tag');
 
 const deliveryTypeDefs = gql`
-    type Delivery {
+    extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external"])
+
+    type Delivery @key(fields: "id") {
         id: ID!
         order_id: ID!
         courier_id: ID
@@ -12,6 +14,11 @@ const deliveryTypeDefs = gql`
         created_at: String
         updated_at: String
         status_description: String
+        order: Order
+    }
+
+    extend type Order @key(fields: "id") {
+        id: ID! @external
     }
 
     type TrackingDelivery {
@@ -37,18 +44,13 @@ const deliveryTypeDefs = gql`
     }
 
     type Query {
-        # Ambil semua delivery
         deliveries: [Delivery!]!
-        # Ambil delivery berdasarkan ID
         delivery(id: ID!): Delivery
-        # Tracking delivery berdasarkan ID
         trackDelivery(id: ID!): Delivery
-        # Ambil delivery berdasarkan courier_id
         deliveriesByCourier(courierId: ID!): [Delivery!]!
     }
 
     type Mutation {
-        # Buat delivery baru
         createDelivery(
             orderId: ID!
             courierId: ID
@@ -56,15 +58,10 @@ const deliveryTypeDefs = gql`
             recipientName: String
             recipientPhone: String
         ): DeliveryResult!
-        # Assign kurir ke delivery
         assignCourier(deliveryId: ID!, courierId: ID!): DeliveryResult!
-        # Update status delivery
         updateDeliveryStatus(deliveryId: ID!, status: String!): DeliveryResult!
-        # Update detail alamat penerima
         updateDelivery(id: ID!, address: String, recipientName: String, recipientPhone: String): DeliveryResult!
-        # Selesaikan delivery
         completeDelivery(id: ID!): DeliveryResult!
-        # Hapus delivery
         deleteDelivery(id: ID!): DeleteDeliveryResult!
     }
 `;

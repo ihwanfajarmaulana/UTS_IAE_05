@@ -62,6 +62,13 @@ const deliveryResolvers = {
         },
     },
 
+    Delivery: {
+        __resolveReference: async (deliveryRef) => {
+            return await getDeliveryById(deliveryRef.id);
+        },
+        order: (delivery) => ({ __typename: 'Order', id: delivery.order_id }),
+    },
+
     Mutation: {
         createDelivery: async (_, { orderId, courierId, address, recipientName, recipientPhone }) => {
             if (!orderId) throw new Error('orderId wajib diisi');
@@ -69,7 +76,7 @@ const deliveryResolvers = {
             const status = 'pending';
             const [result] = await pool.query(
                 `INSERT INTO deliveries (order_id, courier_id, status, address, recipient_name, recipient_phone)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?, ?)`,
                 [orderId, courierId || null, status, address || null, recipientName || null, recipientPhone || null]
             );
 

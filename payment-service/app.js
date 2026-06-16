@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
+const { buildSubgraphSchema } = require('@apollo/subgraph');
 
 const paymentTypeDefs = require('./graphql/typeDefs/paymentTypeDefs');
 const paymentResolvers = require('./graphql/resolvers/paymentResolvers');
@@ -15,8 +16,7 @@ app.use(express.json());
 
 async function startServer() {
     const server = new ApolloServer({
-        typeDefs: paymentTypeDefs,
-        resolvers: paymentResolvers,
+        schema: buildSubgraphSchema({ typeDefs: paymentTypeDefs, resolvers: paymentResolvers }),
         introspection: true,
     });
 

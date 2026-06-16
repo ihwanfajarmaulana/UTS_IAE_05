@@ -1,11 +1,6 @@
 version: '3.8'
 
 services:
-
-  # ======================
-  # DATABASES
-  # ======================
-
   restaurant-db:
     image: mysql:8
     container_name: restaurant-db
@@ -74,14 +69,10 @@ services:
       timeout: 5s
       retries: 10
 
-  # ======================
-  # SERVICES
-  # ======================
-
   restaurant-service:
     build: ./restaurant-service
-    ports:
-      - "3315:3001"
+    expose:
+      - "3001"
     depends_on:
       restaurant-db:
         condition: service_healthy
@@ -92,8 +83,8 @@ services:
 
   order-service:
     build: ./order-service
-    ports:
-      - "3316:3002"
+    expose:
+      - "3002"
     depends_on:
       order-db:
         condition: service_healthy
@@ -104,8 +95,8 @@ services:
 
   payment-service:
     build: ./payment-service
-    ports:
-      - "3317:3003"
+    expose:
+      - "3003"
     depends_on:
       payment-db:
         condition: service_healthy
@@ -116,8 +107,8 @@ services:
 
   delivery-service:
     build: ./delivery-service
-    ports:
-      - "3318:3004"
+    expose:
+      - "3004"
     depends_on:
       delivery-db:
         condition: service_healthy
@@ -125,6 +116,21 @@ services:
       - ./delivery-service/.env
     environment:
       - DB_HOST=delivery-db
+
+  api-gateaway:
+    build: ./api-gateaway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - restaurant-service
+      - order-service
+      - payment-service
+      - delivery-service
+
+  view:
+    build: ./view
+    ports:
+      - "3000:3000"
 
 volumes:
   restaurant-data:

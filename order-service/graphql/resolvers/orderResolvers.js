@@ -30,6 +30,14 @@ const orderResolvers = {
         },
     },
 
+    Order: {
+        __resolveReference: async (orderRef) => {
+            const [rows] = await pool.query('SELECT * FROM orders WHERE id = ?', [orderRef.id]);
+            return rows.length > 0 ? mapOrder(rows[0]) : null;
+        },
+        restaurant: (order) => ({ __typename: 'Restaurant', id: order.restaurant_id }),
+    },
+
     Mutation: {
         createOrder: async (_, { restaurantId, total, status }) => {
             if (!restaurantId) throw new Error('restaurantId wajib diisi');
