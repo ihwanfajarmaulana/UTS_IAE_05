@@ -1,6 +1,6 @@
 # Food Delivery System - Microservices dengan GraphQL
 
-Aplikasi ini merupakan sistem pemesanan makanan berbasis *microservices* yang menggunakan antarmuka GraphQL[cite: 1]. [cite_start]Project ini memisahkan fungsionalitas bisnis menjadi layanan-layanan independen yang terisolasi, didukung oleh *database* masing-masing, dan diorkestrasi menggunakan Docker.
+Aplikasi ini merupakan sistem pemesanan makanan berbasis *microservices* yang menggunakan antarmuka GraphQL.Project ini memisahkan fungsionalitas bisnis menjadi layanan-layanan independen yang terisolasi, didukung oleh *database* masing-masing, dan diorkestrasi menggunakan Docker.
 
 Aplikasi ini juga dilengkapi dengan *dashboard* website sebagai *client*/UI untuk memudahkan pengguna melihat dan mengelola data secara langsung.
 
